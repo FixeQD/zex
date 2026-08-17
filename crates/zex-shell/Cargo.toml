@@ -1,0 +1,22 @@
+[package]
+name = "zex-shell"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Zex shell daemon and CLI"
+
+[dependencies]
+anyhow.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+clap = { version = "4", features = ["derive"] }
+
+[[bin]]
+name = "zex"
+path = "src/main.rs"
+
+[[bin]]
+name = "zexctl"
+path = "src/bin/zexctl.rs"
