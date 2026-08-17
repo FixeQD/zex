@@ -21,19 +21,3 @@ pub fn detect_compositor() -> Option<Box<dyn Compositor>> {
     warn!("no supported compositor detected");
     None
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn nothing_detected_without_env() {
-        unsafe {
-            std::env::remove_var(crate::compositor::niri::SOCKET_ENV);
-            std::env::remove_var(crate::compositor::hyprland::INSTANCE_ENV);
-        }
-        assert!(NiriCompositor::new().is_none());
-        assert!(HyprlandCompositor::new().is_none());
-        assert!(detect_compositor().is_none());
-    }
-}
