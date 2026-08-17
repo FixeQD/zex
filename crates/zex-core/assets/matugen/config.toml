@@ -1,0 +1,5 @@
+# zex generator config.
+
+[matugen]
+mode = "dark"
+type = "scheme-tonal_spot"
