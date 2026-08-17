@@ -1,5 +1,6 @@
-//! Runtime session detection for compositor backends
+//! Runtime session detection for compositor backends.
 
+use super::hyprland::HyprlandCompositor;
 use super::niri::NiriCompositor;
 use super::traits::Compositor;
 use tracing::{info, warn};
@@ -9,6 +10,11 @@ use tracing::{info, warn};
 pub fn detect_compositor() -> Option<Box<dyn Compositor>> {
     if let Some(compositor) = NiriCompositor::new() {
         info!("detected niri session");
+        return Some(Box::new(compositor));
+    }
+
+    if let Some(compositor) = HyprlandCompositor::new() {
+        info!("detected hyprland session");
         return Some(Box::new(compositor));
     }
 
@@ -22,8 +28,12 @@ mod tests {
 
     #[test]
     fn nothing_detected_without_env() {
-        unsafe { std::env::remove_var("NIRI_SOCKET") };
+        unsafe {
+            std::env::remove_var(crate::compositor::niri::SOCKET_ENV);
+            std::env::remove_var(crate::compositor::hyprland::INSTANCE_ENV);
+        }
         assert!(NiriCompositor::new().is_none());
+        assert!(HyprlandCompositor::new().is_none());
         assert!(detect_compositor().is_none());
     }
 }

@@ -10,6 +10,7 @@ description = "Zex services"
 anyhow.workspace = true
 flume = "0.11"
 niri-ipc = "26.4"
+serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 tracing.workspace = true

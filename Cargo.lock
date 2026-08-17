@@ -1445,6 +1445,7 @@ dependencies = [
  "anyhow",
  "flume",
  "niri-ipc",
+ "serde",
  "serde_json",
  "thiserror",
  "tracing",

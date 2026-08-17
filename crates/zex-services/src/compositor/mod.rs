@@ -1,6 +1,7 @@
 //! Compositor abstraction for window and workspace management
 
 pub mod detect;
+pub mod hyprland;
 pub mod niri;
 pub mod traits;
 
