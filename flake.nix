@@ -77,6 +77,7 @@
 
         nativeBuildInputs = with pkgs; [
           pkg-config
+          libclang.lib
         ];
 
         packages = [
@@ -87,6 +88,7 @@
         ];
 
         env.LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath buildInputs;
+        env.LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
       };
     });
 }
