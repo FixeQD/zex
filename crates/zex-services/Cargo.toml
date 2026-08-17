@@ -9,6 +9,7 @@ description = "Zex services"
 [dependencies]
 anyhow.workspace = true
 flume = "0.11"
+futures-util = "0.3"
 niri-ipc = "26.4"
 pipewire = "0.10"
 serde.workspace = true
@@ -16,3 +17,4 @@ serde_json.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
 tracing.workspace = true
+zbus = { version = "5.19", features = ["tokio"] }

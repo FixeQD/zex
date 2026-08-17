@@ -3,3 +3,6 @@
 pub mod audio;
 pub mod backlight;
 pub mod compositor;
+pub mod mpris;
+pub mod tray;
+pub mod upower;
