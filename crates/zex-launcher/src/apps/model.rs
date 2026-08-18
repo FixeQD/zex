@@ -2,7 +2,6 @@
 
 use std::path::PathBuf;
 
-/// A parsed XDG application file
 #[derive(Clone, Debug, PartialEq)]
 pub struct AppInfo {
     pub id: String,

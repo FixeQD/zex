@@ -6,7 +6,6 @@ use std::path::PathBuf;
 /// Preferred icon pixel size
 const ICON_SIZE: u16 = 64;
 
-/// Resolve an icon name to a file path on disk
 pub fn find_icon_file(name: &str) -> Option<PathBuf> {
     let theme = current_theme();
     lookup(name)
@@ -22,7 +21,6 @@ pub fn find_icon_file(name: &str) -> Option<PathBuf> {
         .or_else(|| search_all_themes(name))
 }
 
-/// Look for the icon name in any installed theme
 fn search_all_themes(name: &str) -> Option<PathBuf> {
     for theme in freedesktop_icons::list_themes() {
         if let Some(path) = lookup(name).with_size(ICON_SIZE).with_theme(&theme).find() {

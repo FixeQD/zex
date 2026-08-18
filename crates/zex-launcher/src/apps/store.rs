@@ -25,7 +25,6 @@ pub fn dir_mtimes() -> HashMap<PathBuf, SystemTime> {
     mtimes
 }
 
-/// An opened application index.
 pub struct Store {
     conn: Connection,
 }
@@ -92,7 +91,6 @@ impl Store {
         true
     }
 
-    /// Read all indexed applications
     pub fn snapshot(&self) -> rusqlite::Result<Vec<AppInfo>> {
         let mut stmt = self.conn.prepare(
             "SELECT id, title, command, icon_name, icon_file, summary, tags, wants_terminal, source \
@@ -130,7 +128,6 @@ impl Store {
         Ok(apps)
     }
 
-    /// Persist a fresh scan replacing any previous content
     pub fn write(
         path: &Path,
         apps: &[AppInfo],

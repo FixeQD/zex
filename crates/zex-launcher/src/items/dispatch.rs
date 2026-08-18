@@ -13,7 +13,6 @@ const THEME_KEYS: [(&str, &str); 3] = [
     ("org.gnome.desktop.interface", "cursor-theme"),
 ];
 
-/// Run the action described by an item
 pub fn dispatch(item: &Item) -> anyhow::Result<()> {
     match item {
         Item::App(app) => spawn_entry(app, DEFAULT_TERMINAL_TEMPLATE),
@@ -30,6 +29,8 @@ pub fn dispatch(item: &Item) -> anyhow::Result<()> {
             let encoded = urlencoding::encode(prompt);
             open_external(&format!("https://chatgpt.com/?q={encoded}"))
         }
+        Item::Clipboard(entry) => crate::clipboard::restore(entry),
+        Item::Emoji(glyph) => crate::clipboard::place_text(&glyph.mark),
         Item::Calc { .. } | Item::Menu(_) => Ok(()),
         Item::Window { title, .. } => {
             debug!("window switching arrives with compositor IPC: {title}");

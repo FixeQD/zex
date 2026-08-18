@@ -43,6 +43,21 @@ fn titles_cover_every_kind() {
 }
 
 #[test]
+fn source_items_are_searchable_and_annotated() {
+    let clip = Item::Clipboard(zex_launcher::clipboard::Entry::new(
+        zex_launcher::clipboard::Content::Text("hello world".into()),
+    ));
+    assert_eq!(clip.title(), "hello world");
+    assert_eq!(clip.subtitle(), Some("text".into()));
+
+    let glyph = zex_launcher::emoji::catalog()[0].clone();
+    let emoji = Item::Emoji(glyph.clone());
+    assert!(emoji.title().contains(&glyph.mark));
+    assert!(emoji.title().contains(&glyph.label));
+    assert_eq!(emoji.subtitle(), Some(glyph.label));
+}
+
+#[test]
 fn subtitles_cover_supported_kinds() {
     assert_eq!(Item::Calc { expression: "2+2".into(), answer: "4".into() }.subtitle(), Some("4".into()));
     assert_eq!(Item::Command("ls".into()).subtitle(), None);

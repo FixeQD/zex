@@ -37,7 +37,6 @@ impl Provider {
     }
 }
 
-/// Look up a provider by its trigger
 pub fn find(trigger: &str) -> Option<&'static Provider> {
     PROVIDERS
         .iter()

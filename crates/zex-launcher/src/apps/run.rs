@@ -12,7 +12,6 @@ const FIELD_CODES: [&str; 11] = [
 /// Default terminal wrapper for entries that request one.
 pub const DEFAULT_TERMINAL_TEMPLATE: &str = "ghostty %command%";
 
-/// Launch an application from its entry.
 pub fn spawn_entry(app: &AppInfo, terminal_template: &str) -> anyhow::Result<()> {
     let command = strip_field_codes(&app.command);
     if command.is_empty() {
@@ -42,7 +41,6 @@ pub fn strip_field_codes(raw: &str) -> String {
     command.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
-/// Spawn a detached process with the session environment
 fn detach(bin: &str, args: &[&str]) -> anyhow::Result<()> {
     Command::new(bin)
         .args(args)

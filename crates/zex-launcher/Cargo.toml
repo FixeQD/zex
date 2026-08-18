@@ -8,20 +8,30 @@ description = "Zex launcher engine"
 
 [dependencies]
 anyhow.workspace = true
+arboard = { version = "3", features = ["wayland-data-control"] }
 dirs.workspace = true
+emojis = "0.6"
 fend-core = "1.5"
 flume = "0.11"
 freedesktop-desktop-entry = "0.8"
 freedesktop-icons = "0.4"
+futures = "0.3"
 fuzzy-matcher = "0.3"
 notify = "8"
 pulldown-cmark = "0.12"
 regex = "1"
 rusqlite = { version = "0.40", features = ["bundled"] }
+serde.workspace = true
 serde_json.workspace = true
+tarpc = { version = "0.38", features = ["serde-transport-json", "unix"] }
 thiserror.workspace = true
+tokio.workspace = true
+tokio-util = { version = "0.7", features = ["codec"] }
 tracing.workspace = true
+ureq = { version = "2", default-features = false, features = ["json"] }
 urlencoding = "2"
+wayland-client = "0.31"
+wayland-protocols-wlr = "0.3"
 
 [dev-dependencies]
 tempfile = "3"

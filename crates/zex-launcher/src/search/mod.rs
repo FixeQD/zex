@@ -35,7 +35,6 @@ fn looks_like_math(expr: &str) -> bool {
     has_digit && has_op && math_pattern().is_match(expr)
 }
 
-/// Classify a raw query
 pub fn detect(raw: &str) -> Intent {
     let trimmed = raw.trim();
     if let Some(command) = trimmed.strip_prefix('>') {

@@ -1,6 +1,5 @@
 //! Arithmetic evaluation
 
-/// Evaluate a mathematical expression and render the answer
 pub fn evaluate(expression: &str) -> Option<String> {
     let mut context = fend_core::Context::new();
     let result = fend_core::evaluate(expression, &mut context).ok()?;

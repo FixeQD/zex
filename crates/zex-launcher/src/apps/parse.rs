@@ -4,7 +4,6 @@ use super::model::AppInfo;
 use freedesktop_desktop_entry::DesktopEntry as FdEntry;
 use std::path::Path;
 
-/// Parse a `.desktop` file into an [`AppInfo`]
 pub fn parse_app_file(path: &Path) -> Option<AppInfo> {
     let fd_entry = FdEntry::from_path(path, None::<&[&str]>).ok()?;
     if fd_entry.type_() != Some("Application") || fd_entry.no_display() || fd_entry.hidden() {

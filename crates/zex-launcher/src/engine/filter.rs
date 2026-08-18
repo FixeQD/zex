@@ -15,7 +15,6 @@ impl Matcher {
         }
     }
 
-    /// Fuzzy score of `text` against `query`
     pub fn score(&self, text: &str, query: &str) -> Option<i64> {
         self.inner
             .fuzzy_match(text, query)

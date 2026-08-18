@@ -39,6 +39,8 @@ pub enum Item {
         expression: String,
         answer: String,
     },
+    Clipboard(crate::clipboard::Entry),
+    Emoji(crate::emoji::Glyph),
     Menu(Menu),
 }
 
@@ -54,6 +56,8 @@ impl Item {
             Item::Theme(name) => format!("Theme: {name}"),
             Item::Ai(prompt) => format!("Ask AI: {prompt}"),
             Item::Calc { expression, .. } => expression.clone(),
+            Item::Clipboard(entry) => entry.snippet(),
+            Item::Emoji(glyph) => format!("{} {}", glyph.mark, glyph.label),
             Item::Menu(menu) => menu.title.clone(),
         }
     }
@@ -67,6 +71,8 @@ impl Item {
                 .map(|parent| parent.to_string_lossy().to_string()),
             Item::Calc { answer, .. } => Some(answer.clone()),
             Item::Window { app, .. } => Some(app.clone()),
+            Item::Clipboard(entry) => Some(entry.content.kind_label().to_string()),
+            Item::Emoji(glyph) => Some(glyph.label.clone()),
             _ => None,
         }
     }

@@ -286,12 +286,58 @@ impl Default for Notifications {
 pub struct Launcher {
     /// `grid` or `list`
     pub layout: String,
+    pub ai: Ai,
+    pub clipboard: Clipboard,
 }
 
 impl Default for Launcher {
     fn default() -> Self {
         Self {
             layout: "grid".to_string(),
+            ai: Ai::default(),
+            clipboard: Clipboard::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct Ai {
+    /// Ollama HTTP endpoint
+    pub endpoint: String,
+    /// Model served by the endpoint
+    pub model: String,
+    /// Sampling temperature
+    pub temperature: f32,
+    pub max_tokens: u32,
+    pub system_prompt: String,
+}
+
+impl Default for Ai {
+    fn default() -> Self {
+        Self {
+            endpoint: "http://localhost:11434".to_string(),
+            model: "Qwythos-9B-v2:latest".to_string(),
+            temperature: 0.7,
+            max_tokens: 2048,
+            system_prompt: "You are a concise, helpful assistant.".to_string(),
+        }
+    }
+}
+
+/// Clipboard history options
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct Clipboard {
+    pub history_limit: usize,
+    pub keep_passwords: bool,
+}
+
+impl Default for Clipboard {
+    fn default() -> Self {
+        Self {
+            history_limit: 500,
+            keep_passwords: false,
         }
     }
 }

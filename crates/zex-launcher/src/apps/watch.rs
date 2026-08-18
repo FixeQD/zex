@@ -22,12 +22,10 @@ pub struct Watchdog {
 }
 
 impl Watchdog {
-    /// Watch all XDG application directories
     pub fn start() -> anyhow::Result<Self> {
         Self::start_on(&super::discover::xdg_app_dirs())
     }
 
-    /// Watch a specific set of directories
     pub fn start_on(dirs: &[PathBuf]) -> anyhow::Result<Self> {
         let (tx, rx) = flume::unbounded();
         let mut watcher =
@@ -56,7 +54,6 @@ impl Watchdog {
         })
     }
 
-    /// Drain pending changes without blocking
     pub fn pending(&self) -> Vec<Change> {
         let mut changes = Vec::new();
         loop {
@@ -88,7 +85,6 @@ impl Watchdog {
         changes
     }
 
-    /// Async wait for a single change
     pub async fn incoming(&self) -> Result<Change, flume::RecvError> {
         self.rx.recv_async().await
     }

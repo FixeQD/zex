@@ -28,12 +28,10 @@ pub fn xdg_app_dirs() -> Vec<PathBuf> {
     dirs
 }
 
-/// Collect applications from all XDG directories
 pub fn collect_apps() -> Vec<AppInfo> {
     collect_from(&xdg_app_dirs())
 }
 
-/// Collect applications from a specific set of directories
 pub fn collect_from(dirs: &[PathBuf]) -> Vec<AppInfo> {
     let mut apps: BTreeMap<String, AppInfo> = BTreeMap::new();
     for dir in dirs {

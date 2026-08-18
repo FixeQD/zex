@@ -81,6 +81,10 @@ fn defaults_match_reference() {
         vec![Anchor::Top, Anchor::Right]
     );
     assert_eq!(s.interface.launcher.layout, "grid");
+    assert_eq!(s.interface.launcher.ai.endpoint, "http://localhost:11434");
+    assert_eq!(s.interface.launcher.ai.model, "Qwythos-9B-v2:latest");
+    assert_eq!(s.interface.launcher.clipboard.history_limit, 500);
+    assert!(!s.interface.launcher.clipboard.keep_passwords);
     assert!(s.interface.misc.shell_corners);
     assert_eq!(s.interface.misc.screen_corners, "not_fullscreen");
 
