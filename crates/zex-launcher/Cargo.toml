@@ -9,14 +9,19 @@ description = "Zex launcher engine"
 [dependencies]
 anyhow.workspace = true
 dirs.workspace = true
+fend-core = "1.5"
 flume = "0.11"
 freedesktop-desktop-entry = "0.8"
 freedesktop-icons = "0.4"
+fuzzy-matcher = "0.3"
 notify = "8"
+pulldown-cmark = "0.12"
+regex = "1"
 rusqlite = { version = "0.40", features = ["bundled"] }
 serde_json.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
+urlencoding = "2"
 
 [dev-dependencies]
 tempfile = "3"
