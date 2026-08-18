@@ -8,5 +8,15 @@ description = "Zex launcher engine"
 
 [dependencies]
 anyhow.workspace = true
+dirs.workspace = true
+flume = "0.11"
+freedesktop-desktop-entry = "0.8"
+freedesktop-icons = "0.4"
+notify = "8"
+rusqlite = { version = "0.40", features = ["bundled"] }
+serde_json.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
+
+[dev-dependencies]
+tempfile = "3"
