@@ -1,0 +1,153 @@
+// Bar stylesheet
+
+// M3 tokens (fallback dark palette)
+$surface: #131316;
+$surface-container: #1f1f24;
+$surface-container-high: #26262c;
+$surface-bright: #3a3a41;
+$on-surface: #e3e2e6;
+$on-surface-variant: #c7c6ce;
+$outline: #87878c;
+$primary: #d3e3fd;
+$on-primary: #123258;
+$shadow: rgba(0, 0, 0, 0.35);
+$radius: 16px;
+$gap: 2px;
+
+.bar {
+    color: $on-surface;
+    background-color: transparent;
+}
+
+// ---------------------------------------------------------------- geometry
+
+.bar-widgets {
+    min-width: 0;
+    min-height: 0;
+}
+
+.bar.horizontal .bar-widgets {
+    padding: $gap 4px;
+}
+
+.bar.vertical .bar-widgets {
+    padding: 4px $gap;
+}
+
+.bar.hug {
+    padding: 3px;
+}
+
+.bar.hug.extrapadding {
+    padding: 3px 6px;
+}
+
+.bar.hug.round {
+    padding: 3px 6px;
+}
+
+.bar.floating {
+    background-color: $surface;
+    border-radius: $radius;
+    border: 1px solid $outline;
+    box-shadow: 0 4px 12px $shadow;
+}
+
+.bar.bar-background {
+    background-color: $surface;
+}
+
+.bar.vertical.floating {
+    border-radius: $radius;
+}
+
+// -------------------------------------------------------- widget segments
+
+.bar .left-widgets,
+.bar .center-widgets,
+.bar .right-widgets {
+    background-color: transparent;
+}
+
+.bar.module-backgrounds .left-widgets,
+.bar.module-backgrounds .center-widgets,
+.bar.module-backgrounds .right-widgets {
+    background-color: $surface-container;
+    border-radius: 12px;
+    padding: 1px $gap;
+}
+
+.bar.module-backgrounds .left-widgets.empty,
+.bar.module-backgrounds .center-widgets.empty,
+.bar.module-backgrounds .right-widgets.empty {
+    background-color: transparent;
+    padding: 0;
+}
+
+.bar.separated .left-widgets {
+    margin-right: $gap;
+}
+
+.bar.separated .right-widgets {
+    margin-left: $gap;
+}
+
+.bar.separated .center-widgets {
+    margin: 0 $gap;
+}
+
+// ------------------------------------------------------------------ clock
+
+.clock .time {
+    font-size: 16px;
+    font-weight: 600;
+    color: $on-surface;
+}
+
+.clock .date,
+.clock .month {
+    font-size: 11px;
+    color: $on-surface-variant;
+}
+
+.clock .separator {
+    font-size: 14px;
+    color: $primary;
+    margin: 0 2px;
+}
+
+.clock .date-separator {
+    background-color: $outline;
+    min-height: 1px;
+    min-width: 1px;
+    margin: 2px 8px;
+}
+
+.bar.compact .clock .time {
+    font-size: 14px;
+}
+
+.bar.compact-plus .clock .time {
+    font-size: 13px;
+}
+
+.bar.ultracompact .clock .time {
+    font-size: 12px;
+}
+
+// ----------------------------------------------------------- launcher icon
+
+.launcher-button {
+    background: transparent;
+    border: none;
+    padding: 6px;
+    border-radius: 50%;
+}
+
+.launcher-button:hover {
+    background-color: $surface-container-high;
+}
+
+.launcher-button:active {
+    background-color: $surface-bright;
+}
