@@ -1,6 +1,7 @@
 use anyhow::Context;
 use relm4::Component;
 use zex_shell::bar::Bars;
+use zex_shell::wallpaper::Wallpaper;
 
 fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
@@ -12,6 +13,9 @@ fn main() -> anyhow::Result<()> {
 
     let store = zex_core::SettingsStore::load().context("loading settings")?;
     let _bars = Bars::builder().launch(store);
+
+    let store = zex_core::SettingsStore::load().context("loading settings")?;
+    let _wallpaper = Wallpaper::builder().launch(store);
 
     let main_loop = gtk4::glib::MainLoop::new(None, false);
     main_loop.run();
