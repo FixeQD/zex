@@ -1,7 +1,9 @@
 use anyhow::Context;
 use relm4::Component;
 use zex_shell::bar::Bars;
+use zex_shell::corners::Corners;
 use zex_shell::lockscreen::Lockscreen;
+use zex_shell::overlays::osd::Osd;
 use zex_shell::wallpaper::Wallpaper;
 
 fn main() -> anyhow::Result<()> {
@@ -14,6 +16,12 @@ fn main() -> anyhow::Result<()> {
 
     let store = zex_core::SettingsStore::load().context("loading settings")?;
     let _bars = Bars::builder().launch(store);
+
+    let store = zex_core::SettingsStore::load().context("loading settings")?;
+    let _corners = Corners::builder().launch(store);
+
+    let store = zex_core::SettingsStore::load().context("loading settings")?;
+    let _osd = Osd::builder().launch(store);
 
     let store = zex_core::SettingsStore::load().context("loading settings")?;
     let _wallpaper = Wallpaper::builder().launch(store);
