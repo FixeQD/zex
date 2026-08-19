@@ -7,6 +7,7 @@
 pub mod bar;
 pub mod corners;
 pub mod lockscreen;
+pub mod m3;
 pub mod overlays;
 pub mod shared;
 pub mod wallpaper;

@@ -1,4 +1,5 @@
 use anyhow::Context;
+use gtk4::prelude::*;
 use relm4::Component;
 use zex_shell::bar::Bars;
 use zex_shell::corners::Corners;
@@ -52,6 +53,13 @@ fn main() -> anyhow::Result<()> {
 
     let store = zex_core::SettingsStore::load().context("loading settings")?;
     let _lockscreen = Lockscreen::builder().launch((store, lock_rx));
+
+    let _m3_provider = zex_shell::m3::install_css();
+    if std::env::var_os("ZEX_M3_SHOWCASE").is_some() {
+        tracing::info!("ZEX_M3_SHOWCASE set; opening m3 showcase window");
+        let showcase = zex_shell::m3::showcase::window();
+        showcase.present();
+    }
 
     let main_loop = gtk4::glib::MainLoop::new(None, false);
     main_loop.run();

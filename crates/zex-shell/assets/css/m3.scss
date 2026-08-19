@@ -1,0 +1,231 @@
+// Material 3 component tokens (fallback palette, replaced by matugen output)
+
+$surface: #131316;
+$surface-container: #1f1f24;
+$surface-container-high: #26262c;
+$surface-container-highest: #303036;
+$on-surface: #e3e2e6;
+$on-surface-variant: #c7c6ce;
+$primary: #d3e3fd;
+$on-primary: #123258;
+$secondary: #cdd5e9;
+$secondary-container: #262c3a;
+$on-secondary-container: #d9e2f8;
+$outline-variant: #47474e;
+$shadow: rgba(0, 0, 0, 0.35);
+
+.m3-testing-window {
+    background-color: $surface;
+}
+
+// ------------------------------------------------------------- buttons
+
+.m3-button {
+    min-height: 40px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 9999px;
+    box-shadow: none;
+    transition: background-color 160ms ease, box-shadow 160ms ease;
+
+    .m3-button-label {
+        color: $on-surface;
+        font-weight: 400;
+    }
+
+    &:focus-visible {
+        outline: 2px solid $secondary;
+        outline-offset: 2px;
+    }
+
+    &.icon-only {
+        padding: 0 10px;
+    }
+
+    // Sizes
+    &.xs {
+        min-height: 32px;
+        padding: 0 12px;
+
+        &.icon-only {
+            padding: 0 6px;
+        }
+    }
+    &.m {
+        min-height: 56px;
+        padding: 0 24px;
+
+        &.icon-only {
+            padding: 0 16px;
+        }
+    }
+    &.l {
+        min-height: 96px;
+        padding: 0 48px;
+    }
+    &.xl {
+        min-height: 136px;
+        padding: 0 64px;
+    }
+
+    // Shapes
+    &.square {
+        border-radius: 12px;
+    }
+
+    // Types
+    &.elevated {
+        background-color: $surface-container;
+        box-shadow: 0 1px 3px $shadow;
+
+        .m3-button-label {
+            color: $primary;
+        }
+
+        &:hover {
+            background-color: $surface-container-high;
+        }
+    }
+    &.filled {
+        background-color: $primary;
+
+        .m3-button-label {
+            color: $on-primary;
+        }
+
+        &:hover {
+            background-color: mix($primary, #ffffff, 8%);
+        }
+    }
+    &.tonal {
+        background-color: $secondary-container;
+
+        .m3-button-label {
+            color: $on-secondary-container;
+        }
+
+        &:hover {
+            background-color: mix($secondary-container, #ffffff, 6%);
+        }
+    }
+    &.outlined {
+        background-color: transparent;
+        box-shadow: inset 0 0 0 1px $outline-variant;
+
+        .m3-button-label {
+            color: $on-surface-variant;
+        }
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.06);
+        }
+    }
+    &.text {
+        background-color: transparent;
+
+        .m3-button-label {
+            color: $primary;
+        }
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.06);
+        }
+    }
+}
+
+// Connected Button Groups
+.connected-button-group {
+    .m3-button {
+        border-radius: 8px;
+        min-width: 24px;
+    }
+
+    .m3-button:first-child {
+        border-top-left-radius: 9999px;
+        border-bottom-left-radius: 9999px;
+    }
+
+    .m3-button:last-child {
+        border-top-right-radius: 9999px;
+        border-bottom-right-radius: 9999px;
+    }
+
+    .m3-button.active {
+        border-radius: 9999px;
+        background-color: $primary;
+
+        .m3-button-label {
+            color: $on-primary;
+        }
+    }
+}
+
+// --------------------------------------------------------------- slider
+
+.m3-slider {
+    padding: 10px 16px;
+    border-radius: 18px;
+    background-color: $surface-container;
+
+    .m3-slider-icon {
+        color: $on-surface;
+        margin-right: 10px;
+    }
+
+    scale {
+        padding: 0;
+
+        trough {
+            background-color: $secondary-container;
+            border-radius: 6px;
+        }
+
+        highlight {
+            background-color: $primary;
+            border-radius: 6px;
+        }
+
+        slider {
+            min-width: 6px;
+            min-height: 18px;
+            margin: -5px 0;
+            border-radius: 9999px;
+            background-color: $primary;
+        }
+
+        value {
+            color: $on-surface;
+        }
+    }
+}
+
+// -------------------------------------------------------- navigation rail
+
+.navigation-rail {
+    padding: 10px;
+
+    .rail-button {
+        padding: 4px 0;
+        border-radius: 8px;
+        background-color: transparent;
+
+        .m3-button-icon {
+            padding: 4px 18px;
+            border-radius: 9999px;
+            color: $on-surface-variant;
+        }
+
+        .m3-button-label {
+            color: $on-surface-variant;
+        }
+
+        &:hover .m3-button-icon {
+            background-color: rgba(255, 255, 255, 0.06);
+        }
+
+        &.selected .m3-button-icon {
+            background-color: $secondary-container;
+            color: $on-secondary-container;
+        }
+    }
+}
