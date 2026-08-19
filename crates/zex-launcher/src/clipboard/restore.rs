@@ -25,7 +25,9 @@ pub fn place_text(text: &str) -> Result<()> {
         bail!("refusing to copy empty text");
     }
     let mut board = arboard::Clipboard::new().context("clipboard unavailable")?;
-    board.set_text(text.to_string()).context("copy text failed")?;
+    board
+        .set_text(text.to_string())
+        .context("copy text failed")?;
     Ok(())
 }
 

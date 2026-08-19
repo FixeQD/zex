@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use tempfile::TempDir;
 use zex_launcher::apps::AppInfo;
-use zex_launcher::engine::{best_match, rank, Matcher};
+use zex_launcher::engine::{Matcher, best_match, rank};
 use zex_launcher::load_apps;
 
 fn app(id: &str, name: &str) -> AppInfo {

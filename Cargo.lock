@@ -3934,6 +3934,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "flume 0.11.1",
  "glib",
  "grass",
  "gtk4",
@@ -3941,9 +3942,12 @@ dependencies = [
  "libc",
  "relm4",
  "thiserror 2.0.20",
+ "tokio",
  "tracing",
  "tracing-subscriber",
+ "zbus",
  "zex-core",
+ "zex-services",
 ]
 
 [[package]]

@@ -10,10 +10,10 @@ mod watch;
 
 pub use discover::{collect_apps, collect_from, xdg_app_dirs};
 pub use model::AppInfo;
-pub use run::{spawn_entry, strip_field_codes, DEFAULT_TERMINAL_TEMPLATE};
+pub use run::{DEFAULT_TERMINAL_TEMPLATE, spawn_entry, strip_field_codes};
 pub use session::session_env;
-pub use store::{dir_mtimes, Store};
-pub use watch::{translate, Change, Watchdog};
+pub use store::{Store, dir_mtimes};
+pub use watch::{Change, Watchdog, translate};
 
 use crate::icons::find_icon_file;
 use anyhow::Result;
@@ -69,4 +69,3 @@ fn fill_icon(mut app: AppInfo) -> AppInfo {
     }
     app
 }
-

@@ -1,7 +1,7 @@
 use std::path::PathBuf;
-use zex_launcher::apps::AppInfo;
-use zex_launcher::engine::{organize, Matcher, Section};
 use zex_launcher::Item;
+use zex_launcher::apps::AppInfo;
+use zex_launcher::engine::{Matcher, Section, organize};
 
 fn app(id: &str, name: &str) -> Item {
     Item::App(AppInfo {
@@ -27,13 +27,22 @@ fn browse_query_shows_grouped_catalog() {
     let catalog = vec![
         app("firefox", "Firefox"),
         app("mako", "mako"),
-        Item::Window { title: "Editor".into(), app: "helix".into() },
-        Item::Menu(zex_launcher::Menu { title: "Power".into(), items: vec![] }),
+        Item::Window {
+            title: "Editor".into(),
+            app: "helix".into(),
+        },
+        Item::Menu(zex_launcher::Menu {
+            title: "Power".into(),
+            items: vec![],
+        }),
         Item::Theme("adw-gtk3".into()),
     ];
     let sections = organize(catalog, "", &matcher);
     let section_titles: Vec<&str> = sections.iter().map(|s| s.title).collect();
-    assert_eq!(section_titles, ["Applications", "Windows", "Themes", "Menus"]);
+    assert_eq!(
+        section_titles,
+        ["Applications", "Windows", "Themes", "Menus"]
+    );
     assert_eq!(titles(&sections[0]), ["Firefox", "mako"]);
 }
 
@@ -62,10 +71,7 @@ fn math_query_creates_a_calculator_section() {
     assert_eq!(sections.len(), 1);
     assert_eq!(sections[0].title, "Calculator");
     assert_eq!(titles(&sections[0]), ["2+2"]);
-    assert_eq!(
-        sections[0].items[0].subtitle(),
-        Some("4".to_string())
-    );
+    assert_eq!(sections[0].items[0].subtitle(), Some("4".to_string()));
 }
 
 #[test]

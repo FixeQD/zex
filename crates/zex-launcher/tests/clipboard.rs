@@ -43,7 +43,10 @@ fn newest_entry_stays_visible_after_duplicate_surge() {
     for n in 0..10 {
         history.push(clip(&format!("entry {n}")));
     }
-    assert_eq!(history.browse(&Matcher::new(), "").first().unwrap().body(), "entry 9");
+    assert_eq!(
+        history.browse(&Matcher::new(), "").first().unwrap().body(),
+        "entry 9"
+    );
 }
 
 #[test]
@@ -88,7 +91,10 @@ fn persistence_respects_a_smaller_limit() {
     }
     let reloaded = History::open(Some(&file), settings(2)).unwrap();
     assert_eq!(reloaded.len(), 2);
-    assert_eq!(reloaded.browse(&Matcher::new(), "").first().unwrap().body(), "three");
+    assert_eq!(
+        reloaded.browse(&Matcher::new(), "").first().unwrap().body(),
+        "three"
+    );
 }
 
 #[test]

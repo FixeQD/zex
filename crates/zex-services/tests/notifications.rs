@@ -6,12 +6,12 @@ use common::TestBus;
 use futures_util::StreamExt;
 use std::collections::HashMap;
 use std::time::Duration;
+use zbus::proxy;
+use zbus::zvariant::OwnedValue;
 use zex_services::notifications::{
     NotificationAction, NotificationEvent, Notifications, NotificationsConfig, Urgency,
     relative_age,
 };
-use zbus::proxy;
-use zbus::zvariant::OwnedValue;
 
 // ---------------------------------------------------------------------------
 // Unit tests
@@ -206,7 +206,16 @@ async fn replace_keeps_id_and_closes_old() {
 
     let mut signals = proxy.receive_notification_closed().await.unwrap();
     let replaced = proxy
-        .notify("app", id, "icon", "Second", "Body", vec![], HashMap::new(), -1)
+        .notify(
+            "app",
+            id,
+            "icon",
+            "Second",
+            "Body",
+            vec![],
+            HashMap::new(),
+            -1,
+        )
         .await
         .unwrap();
     assert_eq!(replaced, id);
@@ -291,7 +300,9 @@ async fn popup_limit_dismisses_oldest() {
         max_popups: 1,
         ..Default::default()
     };
-    let service = Notifications::connect(bus.conn.clone(), config).await.unwrap();
+    let service = Notifications::connect(bus.conn.clone(), config)
+        .await
+        .unwrap();
     let proxy = NotificationsClientProxy::new(&bus.conn).await.unwrap();
 
     let first = notify(&proxy, "First", "Body").await;
@@ -326,7 +337,9 @@ async fn popup_dismissed_after_timeout() {
         timeout_ms: 300,
         ..Default::default()
     };
-    let service = Notifications::connect(bus.conn.clone(), config).await.unwrap();
+    let service = Notifications::connect(bus.conn.clone(), config)
+        .await
+        .unwrap();
     let proxy = NotificationsClientProxy::new(&bus.conn).await.unwrap();
 
     let id = notify(&proxy, "Summary", "Body").await;
@@ -341,7 +354,10 @@ async fn popup_dismissed_after_timeout() {
             other => panic!("unexpected event: {other:?}"),
         }
     };
-    assert!(saw_popup && saw_notified, "popup and notified must precede dismissal");
+    assert!(
+        saw_popup && saw_notified,
+        "popup and notified must precede dismissal"
+    );
     assert_eq!(dismissed, id);
 
     assert!(service.popups().is_empty());
@@ -368,7 +384,9 @@ async fn history_is_bounded_ring_buffer() {
         history_size: 2,
         ..Default::default()
     };
-    let service = Notifications::connect(bus.conn.clone(), config).await.unwrap();
+    let service = Notifications::connect(bus.conn.clone(), config)
+        .await
+        .unwrap();
     let proxy = NotificationsClientProxy::new(&bus.conn).await.unwrap();
 
     let first = notify(&proxy, "One", "Body").await;
@@ -546,7 +564,16 @@ async fn hints_set_urgency_icon_and_timeout() {
     let _ = next_event(&service).await; // Notified
 
     let explicit_id = proxy
-        .notify("app", 0, "icon", "Summary", "Body", vec![], HashMap::new(), 1200)
+        .notify(
+            "app",
+            0,
+            "icon",
+            "Summary",
+            "Body",
+            vec![],
+            HashMap::new(),
+            1200,
+        )
         .await
         .unwrap();
     match next_event(&service).await {

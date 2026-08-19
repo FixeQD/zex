@@ -1,10 +1,13 @@
-use zex_launcher::apps::{strip_field_codes, AppInfo, DEFAULT_TERMINAL_TEMPLATE};
+use zex_launcher::apps::{AppInfo, DEFAULT_TERMINAL_TEMPLATE, strip_field_codes};
 
 #[test]
 fn strips_field_codes() {
     assert_eq!(strip_field_codes("firefox %u"), "firefox");
     assert_eq!(strip_field_codes("code %F %U"), "code");
-    assert_eq!(strip_field_codes("gimp %i %c --new-instance"), "gimp --new-instance");
+    assert_eq!(
+        strip_field_codes("gimp %i %c --new-instance"),
+        "gimp --new-instance"
+    );
     assert_eq!(strip_field_codes("  alacritty  "), "alacritty");
 }
 

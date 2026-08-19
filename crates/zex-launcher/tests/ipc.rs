@@ -4,7 +4,7 @@ use zex_launcher::ipc::{Answer, Bridge, Demand, Dial, Hit, Mode, Request};
 
 /// Pump the daemon queue, answering each request, until the socket disappears
 fn pump_queue(receiver: flume::Receiver<Demand>) -> mpsc::Receiver<()> {
-let (done_tx, done_rx) = mpsc::channel();
+    let (done_tx, done_rx) = mpsc::channel();
     std::thread::spawn(move || {
         while let Ok(demand) = receiver.recv() {
             let answer = match demand.request {
@@ -47,7 +47,9 @@ fn full_roundtrip_over_the_socket() {
         assert!(zex_launcher::ipc::is_listening(&socket));
 
         let dial = Dial::open_at(&socket).await.expect("dial connects");
-        dial.toggle(Some(vec![Mode::Emojis])).await.expect("toggle ok");
+        dial.toggle(Some(vec![Mode::Emojis]))
+            .await
+            .expect("toggle ok");
         dial.hide().await.expect("hide ok");
 
         let hits = dial.query("firefox", 5).await.expect("query ok");
@@ -74,7 +76,10 @@ fn full_roundtrip_over_the_socket() {
             std::result::Result::Err(e) => break Err(e),
         }
     };
-    assert!(done_signal.is_ok(), "queue pump finished, got {done_signal:?}");
+    assert!(
+        done_signal.is_ok(),
+        "queue pump finished, got {done_signal:?}"
+    );
 }
 
 #[test]

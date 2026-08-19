@@ -1,4 +1,4 @@
-use zex_launcher::search::providers::{build_url, default_url, find, PROVIDERS};
+use zex_launcher::search::providers::{PROVIDERS, build_url, default_url, find};
 
 #[test]
 fn finds_known_triggers() {

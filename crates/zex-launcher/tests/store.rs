@@ -4,7 +4,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tempfile::TempDir;
-use zex_launcher::apps::{collect_from, dir_mtimes, xdg_app_dirs, AppInfo, Store};
+use zex_launcher::apps::{AppInfo, Store, collect_from, dir_mtimes, xdg_app_dirs};
 use zex_launcher::testkit::make_entry;
 
 fn sample(tmp: &TempDir) -> (Vec<AppInfo>, HashMap<PathBuf, SystemTime>) {

@@ -87,8 +87,12 @@ impl BarWindow {
             let Some(widget) = self.widgets.get(module) else {
                 continue;
             };
+            let mut visible = placement.visible;
+            if placement.module == Module::Media {
+                visible &= self.widgets.media_has_players();
+            }
             self.areas[placement.area.index()].append(&widget);
-            widget.set_visible(placement.visible);
+            widget.set_visible(visible);
         }
 
         for area in &self.areas {

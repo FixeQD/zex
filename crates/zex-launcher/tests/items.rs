@@ -20,24 +20,51 @@ fn app(title: &str) -> AppInfo {
 fn titles_cover_every_kind() {
     assert_eq!(Item::App(app("Firefox")).title(), "Firefox");
     assert_eq!(
-        Item::Action { owner: "firefox".into(), label: "New Window".into(), command: "firefox".into() }.title(),
+        Item::Action {
+            owner: "firefox".into(),
+            label: "New Window".into(),
+            command: "firefox".into()
+        }
+        .title(),
         "New Window"
     );
     assert_eq!(Item::Command("ls -la".into()).title(), "ls -la");
-    assert_eq!(Item::File(PathBuf::from("/tmp/note.md")).title(), "/tmp/note.md");
     assert_eq!(
-        Item::Window { title: "Terminal".into(), app: "ghostty".into() }.title(),
+        Item::File(PathBuf::from("/tmp/note.md")).title(),
+        "/tmp/note.md"
+    );
+    assert_eq!(
+        Item::Window {
+            title: "Terminal".into(),
+            app: "ghostty".into()
+        }
+        .title(),
         "Terminal"
     );
-    assert_eq!(Item::Web { provider: "gh".into(), query: "zex".into() }.title(), "gh: zex");
+    assert_eq!(
+        Item::Web {
+            provider: "gh".into(),
+            query: "zex".into()
+        }
+        .title(),
+        "gh: zex"
+    );
     assert_eq!(Item::Theme("adw-gtk3".into()).title(), "Theme: adw-gtk3");
     assert_eq!(Item::Ai("summarize".into()).title(), "Ask AI: summarize");
     assert_eq!(
-        Item::Calc { expression: "2+2".into(), answer: "4".into() }.title(),
+        Item::Calc {
+            expression: "2+2".into(),
+            answer: "4".into()
+        }
+        .title(),
         "2+2"
     );
     assert_eq!(
-        Item::Menu(Menu { title: "Power".into(), items: vec![] }).title(),
+        Item::Menu(Menu {
+            title: "Power".into(),
+            items: vec![]
+        })
+        .title(),
         "Power"
     );
 }
@@ -59,7 +86,14 @@ fn source_items_are_searchable_and_annotated() {
 
 #[test]
 fn subtitles_cover_supported_kinds() {
-    assert_eq!(Item::Calc { expression: "2+2".into(), answer: "4".into() }.subtitle(), Some("4".into()));
+    assert_eq!(
+        Item::Calc {
+            expression: "2+2".into(),
+            answer: "4".into()
+        }
+        .subtitle(),
+        Some("4".into())
+    );
     assert_eq!(Item::Command("ls".into()).subtitle(), None);
     assert_eq!(
         Item::File(PathBuf::from("/tmp/note.md")).subtitle(),
@@ -89,6 +123,18 @@ fn launch_rejects_empty_commands() {
 
 #[test]
 fn menus_and_calculations_are_passive() {
-    assert!(Launchable::launch(&Item::Menu(Menu { title: "Power".into(), items: vec![] })).is_ok());
-    assert!(Launchable::launch(&Item::Calc { expression: "2+2".into(), answer: "4".into() }).is_ok());
+    assert!(
+        Launchable::launch(&Item::Menu(Menu {
+            title: "Power".into(),
+            items: vec![]
+        }))
+        .is_ok()
+    );
+    assert!(
+        Launchable::launch(&Item::Calc {
+            expression: "2+2".into(),
+            answer: "4".into()
+        })
+        .is_ok()
+    );
 }

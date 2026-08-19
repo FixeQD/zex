@@ -151,3 +151,128 @@ $gap: 2px;
 .launcher-button:active {
     background-color: $surface-bright;
 }
+
+// ------------------------------------------------------------ workspaces
+
+.workspaces {
+    padding: 2px 1px;
+    border-radius: $radius;
+}
+
+.workspace {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 2px;
+    min-width: 30px;
+    min-height: 30px;
+}
+
+.workspace:hover {
+    background-color: $surface-container-high;
+}
+
+.workspace.active {
+    background-color: $primary;
+}
+
+.workspace.active .workspace-btn-label {
+    color: $on-primary;
+}
+
+.workspace.empty {
+    opacity: 0.45;
+}
+
+.workspace-btn-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: $on-surface-variant;
+}
+
+.workspaces.dots .workspace-btn-label {
+    opacity: 0;
+}
+
+.workspace .workspace-btn-label {
+    transition: color 100ms ease;
+}
+
+// ----------------------------------------------------------- window info
+
+.winfo {
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+.winfo.vertical {
+    padding: 6px 2px;
+}
+
+.winfo-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: $on-surface;
+}
+
+.winfo-app-id {
+    font-size: 10px;
+    color: $on-surface-variant;
+}
+
+// ----------------------------------------------------------------- media
+
+.media {
+    padding: 2px 4px;
+    border-radius: 10px;
+}
+
+.media.centered {
+    min-width: 150px;
+}
+
+.media-row {
+    padding: 2px 4px;
+    border-radius: 8px;
+}
+
+.media-row:hover {
+    background-color: $surface-container-high;
+}
+
+.media-cover-box {
+    border-radius: 50%;
+    overflow: hidden;
+    transition: opacity 150ms ease;
+}
+
+.media-cover-box.playing {
+    animation: media-spin 6s linear infinite;
+}
+
+@keyframes media-spin {
+    to {
+        transform: rotate(1turn);
+    }
+}
+
+.media-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: $on-surface;
+}
+
+.media-artist {
+    font-size: 10px;
+    color: $on-surface-variant;
+}
+
+.media-overlay {
+    padding: 2px;
+    border-radius: 8px;
+    color: $on-surface;
+}
+
+.media-overlay.is-paused {
+    color: $primary;
+}
