@@ -3,8 +3,9 @@
 mod events;
 mod widget;
 
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
+use std::cell::RefCell;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, OnceLock};
 
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, LayerShell};
@@ -21,6 +22,16 @@ use self::widget::OsdWidget;
 /// How long the OSD stays visible after the last trigger
 pub const AUTO_HIDE_SECONDS: u64 = 2;
 
+/// Shared OSD suppression flag: the quick-center sliders raise it while they drag
+static SUPPRESS_OSD: OnceLock<Arc<AtomicBool>> = OnceLock::new();
+
+/// Flag shared by every OSD consumer; quick-center raises it around slider drags
+pub fn suppress_osd_flag() -> Arc<AtomicBool> {
+    SUPPRESS_OSD
+        .get_or_init(|| Arc::new(AtomicBool::new(false)))
+        .clone()
+}
+
 #[derive(Debug)]
 pub enum OsdMsg {
     SettingsChanged(Box<zex_core::Settings>),
@@ -30,21 +41,20 @@ pub enum OsdMsg {
 
 pub struct Osd {
     widget: OsdWidget,
-    /// Raised by quick-center sliders so drags do not pop the OSD
-    suppress: Rc<Cell<bool>>,
+    /// Raised while quick-center sliders drag so their feedback does not pop the OSD
+    suppress: Arc<AtomicBool>,
     /// Pending auto-hide source, restarted on every trigger
     hide_timer: RefCell<Option<glib::SourceId>>,
     subscription: Option<Subscription>,
 }
 
 impl Osd {
-    /// Raise while a slider drags, clear shortly after
-    pub fn set_suppressed(&self, suppressed: bool) {
-        self.suppress.set(suppressed);
+    fn suppressed(&self) -> bool {
+        self.suppress.load(Ordering::Relaxed)
     }
 
     fn show_osd(&self) {
-        if self.suppress.get() {
+        if self.suppressed() {
             return;
         }
         if let Some(source) = self.hide_timer.borrow_mut().take() {
@@ -101,7 +111,7 @@ impl SimpleComponent for Osd {
         let widgets = view_output!();
         let mut model = Self {
             widget: OsdWidget::new(),
-            suppress: Rc::new(Cell::new(false)),
+            suppress: suppress_osd_flag(),
             hide_timer: RefCell::new(None),
             subscription: None,
         };
@@ -124,14 +134,14 @@ impl SimpleComponent for Osd {
                 self.apply_layout(&snapshot);
             }
             OsdMsg::Volume(state) => {
-                if self.suppress.get() {
+                if self.suppressed() {
                     return;
                 }
                 self.widget.set_volume(&state);
                 self.show_osd();
             }
             OsdMsg::Backlight(value) => {
-                if self.suppress.get() {
+                if self.suppressed() {
                     return;
                 }
                 self.widget.set_backlight(value);

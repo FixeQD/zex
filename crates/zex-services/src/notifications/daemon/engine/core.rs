@@ -1,35 +1,37 @@
-//! The `org.freedesktop.Notifications` D-Bus service implementation
-
-use super::history::History;
-use super::{
-    Notification, NotificationAction, NotificationEvent, NotificationsConfig, OBJECT_PATH, Urgency,
-};
-use flume::Sender;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use zbus::Connection;
-use zbus::interface;
-use zbus::object_server::SignalEmitter;
+
+use flume::Sender;
 use zbus::zvariant::OwnedValue;
 
-/// Shared daemon state
-pub struct State {
-    pub(crate) history: History,
-    pub(crate) next_id: u32,
-    pub(crate) dnd: bool,
-    pub(crate) config: NotificationsConfig,
+use super::super::model::types::{
+    Notification, NotificationAction, NotificationEvent, NotificationsConfig, Urgency,
+};
+use super::super::store::history::History;
+use super::signals;
+
+enum Reason {
+    /// `NotificationClosed` reason 2: user or server closed the notification
+    Closed = 2,
 }
 
-/// Engine shared by the DBus interface and the public service API
+/// Engine shared by the D-Bus interface and the public service API
 pub struct Core {
-    pub(crate) conn: Connection,
-    pub(crate) state: Arc<Mutex<State>>,
-    pub(crate) tx: Sender<NotificationEvent>,
+    conn: zbus::Connection,
+    state: Arc<Mutex<State>>,
+    tx: Sender<NotificationEvent>,
+}
+
+pub struct State {
+    history: History,
+    next_id: u32,
+    dnd: bool,
+    config: NotificationsConfig,
 }
 
 impl Core {
     pub fn new(
-        conn: Connection,
+        conn: zbus::Connection,
         config: NotificationsConfig,
         tx: Sender<NotificationEvent>,
     ) -> Self {
@@ -42,7 +44,6 @@ impl Core {
         Self { conn, state, tx }
     }
 
-    /// Process a `Notify` call: validation, timeout resolution, popup limit, history insertion
     /// Returns the notification id (0 = rejected)
     pub async fn add(
         &self,
@@ -84,6 +85,7 @@ impl Core {
         } else {
             app_icon
         };
+        // resident or 0 = sticky; negative = daemon default
         let timeout_ms = if resident || expire_timeout == 0 {
             0
         } else if expire_timeout > 0 {
@@ -99,7 +101,7 @@ impl Core {
             let mut state = self.state.lock().unwrap();
             if replaces_id != 0 {
                 if state.history.remove(replaces_id).is_some() {
-                    closed_signals.push((replaces_id, 2));
+                    closed_signals.push((replaces_id, Reason::Closed as u32));
                     events.push(NotificationEvent::Closed(replaces_id));
                 }
                 id = replaces_id;
@@ -120,6 +122,7 @@ impl Core {
                 time: now_secs(),
                 popup: !state.dnd,
             };
+            // Enforce max_popups by evicting the oldest popup
             if notification.popup && state.config.max_popups > 0 {
                 while state.history.popup_count() >= state.config.max_popups {
                     match state.history.oldest_popup() {
@@ -142,7 +145,7 @@ impl Core {
             events.push(NotificationEvent::Notified(notification));
         }
         for (id, reason) in closed_signals {
-            self.emit_notification_closed(id, reason).await?;
+            signals::notification_closed(&self.conn, id, reason).await?;
         }
         for event in events {
             let _ = self.tx.send(event);
@@ -150,20 +153,26 @@ impl Core {
         Ok(id)
     }
 
-    /// Fully close a notification: remove it from the history, hide its popup and emit `NotificationClosed` (reason 2) on the bus
     pub async fn close(&self, id: u32) -> zbus::fdo::Result<()> {
         let removed = { self.state.lock().unwrap().history.remove(id).is_some() };
         if !removed {
             return Ok(());
         }
-        self.emit_notification_closed(id, 2).await?;
+        signals::notification_closed(&self.conn, id, Reason::Closed as u32).await?;
         let _ = self.tx.send(NotificationEvent::Closed(id));
         Ok(())
     }
 
-    /// Emit `ActionInvoked` for a notification action
+    pub async fn close_all(&self) -> zbus::fdo::Result<()> {
+        let ids = self.notification_ids();
+        for id in ids {
+            self.close(id).await?;
+        }
+        Ok(())
+    }
+
     pub async fn invoke_action(&self, id: u32, key: &str) -> zbus::fdo::Result<()> {
-        self.emit_action_invoked(id, key).await
+        signals::action_invoked(&self.conn, id, key).await
     }
 
     pub fn set_dnd(&self, dnd: bool) {
@@ -173,6 +182,16 @@ impl Core {
         }
         state.dnd = dnd;
         let _ = self.tx.send(NotificationEvent::DndChanged(dnd));
+    }
+
+    /// Takes effect on the next notification; emits `DndChanged` when the flag moved
+    pub fn apply_config(&self, config: NotificationsConfig) {
+        let mut state = self.state.lock().unwrap();
+        if state.config.dnd != config.dnd {
+            let _ = self.tx.send(NotificationEvent::DndChanged(config.dnd));
+            state.dnd = config.dnd;
+        }
+        state.config = config;
     }
 
     pub fn dnd(&self) -> bool {
@@ -204,8 +223,7 @@ impl Core {
             .collect()
     }
 
-    /// Dismiss popups whose timeout elapsed
-    /// Called periodically from the background task
+    /// Dismiss popups whose timeout elapsed; polled from the background task
     pub fn dismiss_due(&self) {
         let now = now_secs();
         let mut due = Vec::new();
@@ -227,28 +245,6 @@ impl Core {
             let _ = self.tx.send(NotificationEvent::Dismissed(id));
         }
     }
-
-    async fn emit_notification_closed(&self, id: u32, reason: u32) -> zbus::fdo::Result<()> {
-        let iface_ref = self
-            .conn
-            .object_server()
-            .interface::<_, NotificationsServer>(OBJECT_PATH)
-            .await?;
-        NotificationsServerSignals::notification_closed(&iface_ref, id, reason)
-            .await
-            .map_err(zbus::fdo::Error::from)
-    }
-
-    async fn emit_action_invoked(&self, id: u32, key: &str) -> zbus::fdo::Result<()> {
-        let iface_ref = self
-            .conn
-            .object_server()
-            .interface::<_, NotificationsServer>(OBJECT_PATH)
-            .await?;
-        NotificationsServerSignals::action_invoked(&iface_ref, id, key.to_string())
-            .await
-            .map_err(zbus::fdo::Error::from)
-    }
 }
 
 fn now_secs() -> i64 {
@@ -256,72 +252,4 @@ fn now_secs() -> i64 {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|duration| duration.as_secs() as i64)
         .unwrap_or(0)
-}
-
-pub struct NotificationsServer {
-    pub(crate) core: Arc<Core>,
-}
-
-#[interface(name = "org.freedesktop.Notifications")]
-impl NotificationsServer {
-    async fn notify(
-        &self,
-        app_name: String,
-        replaces_id: u32,
-        app_icon: String,
-        summary: String,
-        body: String,
-        actions: Vec<String>,
-        hints: HashMap<String, OwnedValue>,
-        expire_timeout: i32,
-    ) -> zbus::fdo::Result<u32> {
-        self.core
-            .add(
-                app_name,
-                app_icon,
-                summary,
-                body,
-                actions,
-                hints,
-                expire_timeout,
-                replaces_id,
-            )
-            .await
-    }
-
-    async fn close_notification(&self, id: u32) -> zbus::fdo::Result<()> {
-        self.core.close(id).await
-    }
-
-    fn get_capabilities(&self) -> Vec<String> {
-        vec![
-            "actions".to_string(),
-            "body".to_string(),
-            "icon-static".to_string(),
-            "persistence".to_string(),
-        ]
-    }
-
-    fn get_server_information(&self) -> (String, String, String, String) {
-        (
-            "Zex Notifications".to_string(),
-            "zex".to_string(),
-            env!("CARGO_PKG_VERSION").to_string(),
-            "1.2".to_string(),
-        )
-    }
-
-    #[zbus(signal)]
-    async fn action_invoked(
-        signal_emitter: &SignalEmitter<'_>,
-        id: u32,
-        action_key: String,
-    ) -> zbus::Result<()>;
-
-    #[zbus(signal)]
-    async fn notification_closed(
-        signal_emitter: &SignalEmitter<'_>,
-        id: u32,
-        reason: u32,
-    ) -> zbus::Result<()>;
 }

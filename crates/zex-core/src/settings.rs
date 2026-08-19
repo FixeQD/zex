@@ -367,6 +367,7 @@ pub struct Services {
     pub recorder: Recorder,
     pub osd: Osd,
     pub lockscreen: Lockscreen,
+    pub notifications: NotificationsService,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -399,6 +400,31 @@ impl Default for Osd {
         Self {
             anchor: vec![Anchor::Bottom, Anchor::Right],
             vertical: false,
+        }
+    }
+}
+
+/// Notification daemon options
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct NotificationsService {
+    /// Blocks popups (history keeps filling)
+    pub dnd: bool,
+    /// Default popup lifetime in milliseconds (negative `expire_timeout` notifications)
+    pub timeout_ms: i64,
+    /// How many popups stay on screen at once
+    pub max_popups: usize,
+    /// History ring buffer size
+    pub history_size: usize,
+}
+
+impl Default for NotificationsService {
+    fn default() -> Self {
+        Self {
+            dnd: false,
+            timeout_ms: 5000,
+            max_popups: 3,
+            history_size: 100,
         }
     }
 }

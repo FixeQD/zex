@@ -584,3 +584,90 @@ async fn hints_set_urgency_icon_and_timeout() {
         other => panic!("unexpected event: {other:?}"),
     }
 }
+
+#[test]
+fn fan_delivers_every_event_to_every_subscriber() {
+    use zex_services::notifications::Fan;
+
+    let fan = Fan::<NotificationEvent>::default();
+    let first = fan.subscribe();
+    let second = fan.subscribe();
+
+    fan.push(&NotificationEvent::DndChanged(true));
+    fan.push(&NotificationEvent::DndChanged(false));
+
+    assert_eq!(first.recv_timeout(Duration::from_millis(200)), Ok(NotificationEvent::DndChanged(true)));
+    assert_eq!(first.recv_timeout(Duration::from_millis(200)), Ok(NotificationEvent::DndChanged(false)));
+    assert_eq!(second.recv_timeout(Duration::from_millis(200)), Ok(NotificationEvent::DndChanged(true)));
+    assert_eq!(second.recv_timeout(Duration::from_millis(200)), Ok(NotificationEvent::DndChanged(false)));
+
+    // Dead subscriptions are pruned
+    drop(first);
+    fan.push(&NotificationEvent::DndChanged(true));
+    assert_eq!(
+        second.recv_timeout(Duration::from_millis(200)),
+        Ok(NotificationEvent::DndChanged(true))
+    );
+}
+
+#[tokio::test]
+async fn client_facade_closes_and_snapshots() {
+    let Some(bus) = TestBus::spawn().await else {
+        eprintln!("skipping: dbus-daemon not available");
+        return;
+    };
+    let service = Notifications::connect(bus.conn.clone(), NotificationsConfig::default())
+        .await
+        .unwrap();
+    let proxy = NotificationsClientProxy::new(&bus.conn).await.unwrap();
+    let client = service.client();
+
+    let id = notify(&proxy, "Summary", "Body").await;
+    let _ = next_event(&service).await; // Popup
+    let _ = next_event(&service).await; // Notified
+
+    // Sync calls run off the daemon runtime (the GTK thread in the shell);
+    // spawn_blocking matches that separation.
+    let client_clone = client.clone();
+    let snapshot = tokio::task::spawn_blocking(move || client_clone.notifications())
+        .await
+        .unwrap();
+    assert_eq!(snapshot.len(), 1);
+    assert_eq!(snapshot[0].id, id);
+
+    let client_clone = client.clone();
+    let dnd = tokio::task::spawn_blocking(move || client_clone.dnd())
+        .await
+        .unwrap();
+    assert!(!dnd);
+
+    // DND round-trips through the daemon runtime
+    let client_clone = client.clone();
+    let _ = tokio::task::spawn_blocking(move || client_clone.set_dnd(true))
+        .await
+        .unwrap();
+    match next_event(&service).await {
+        NotificationEvent::DndChanged(dnd) => assert!(dnd),
+        other => panic!("unexpected event: {other:?}"),
+    }
+    let client_clone = client.clone();
+    let dnd = tokio::task::spawn_blocking(move || client_clone.dnd())
+        .await
+        .unwrap();
+    assert!(dnd);
+
+    // Close through the facade emits Closed on the event stream
+    let client_clone = client.clone();
+    let _ = tokio::task::spawn_blocking(move || client_clone.close(id))
+        .await
+        .unwrap();
+    match next_event(&service).await {
+        NotificationEvent::Closed(closed) => assert_eq!(closed, id),
+        other => panic!("unexpected event: {other:?}"),
+    }
+    let client_clone = client;
+    let snapshot = tokio::task::spawn_blocking(move || client_clone.notifications())
+        .await
+        .unwrap();
+    assert!(snapshot.is_empty());
+}

@@ -2,6 +2,9 @@
 
 mod clock;
 mod launcher_button;
+mod notification;
+
+pub use notification::NotificationWidget;
 
 use std::cell::RefCell;
 use std::collections::HashMap;

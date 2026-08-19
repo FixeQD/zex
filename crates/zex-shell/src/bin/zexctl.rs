@@ -15,7 +15,7 @@ enum Command {
     /// Toggle a shell window
     ToggleWindow { name: String },
     /// Run a registered command
-    RunCommand { name: String },
+    Run { name: String },
     /// Lock the session through org.zex.Lock
     Lock,
 }
@@ -30,7 +30,7 @@ fn main() -> anyhow::Result<()> {
         Command::ToggleWindow { name } => {
             println!("toggle-window {name}");
         }
-        Command::RunCommand { name } => {
+        Command::Run { name } => {
             println!("run-command {name}");
         }
         Command::Lock => lock_session()?,
