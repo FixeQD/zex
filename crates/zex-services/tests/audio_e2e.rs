@@ -43,7 +43,7 @@ fn e2e_volume_monitor_tracks_and_controls_sink() {
     // First monitor: drives commands, publishes the observed state
     let state = Arc::new(Mutex::new(VolumeState::default()));
     let (ready_tx, ready_rx) = oneshot::channel();
-    let control = spawn_volume_monitor(Arc::clone(&state), ready_tx);
+    let control = spawn_volume_monitor(Arc::clone(&state), ready_tx, flume::unbounded().0);
     if !wait_ready(ready_rx) {
         eprintln!("skipping: no running pipewire session");
         return;
@@ -52,7 +52,7 @@ fn e2e_volume_monitor_tracks_and_controls_sink() {
     // Second monitor: independent observer of the same sink
     let observer = Arc::new(Mutex::new(VolumeState::default()));
     let (observer_ready_tx, observer_ready_rx) = oneshot::channel();
-    let _observer_control = spawn_volume_monitor(Arc::clone(&observer), observer_ready_tx);
+    let _observer_control = spawn_volume_monitor(Arc::clone(&observer), observer_ready_tx, flume::unbounded().0);
     if !wait_ready(observer_ready_rx) {
         eprintln!("skipping: observer monitor never attached");
         return;
@@ -100,7 +100,7 @@ fn e2e_volume_state_updates_on_external_change() {
     let _guard = lock_e2e();
     let state = Arc::new(Mutex::new(VolumeState::default()));
     let (ready_tx, ready_rx) = oneshot::channel();
-    let control = spawn_volume_monitor(Arc::clone(&state), ready_tx);
+    let control = spawn_volume_monitor(Arc::clone(&state), ready_tx, flume::unbounded().0);
     if !wait_ready(ready_rx) {
         eprintln!("skipping: no running pipewire session");
         return;

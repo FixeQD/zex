@@ -3935,6 +3935,7 @@ dependencies = [
  "anyhow",
  "clap",
  "flume 0.11.1",
+ "gdk-pixbuf",
  "glib",
  "grass",
  "gtk4",
@@ -3947,6 +3948,7 @@ dependencies = [
  "tracing-subscriber",
  "zbus",
  "zex-core",
+ "zex-launcher",
  "zex-services",
 ]
 

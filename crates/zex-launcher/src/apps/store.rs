@@ -10,7 +10,15 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tracing::debug;
 
 /// Bump when the stored layout changes
-pub const SCHEMA_VERSION: i64 = 1;
+pub const SCHEMA_VERSION: i64 = 2;
+
+/// `~/.config/zex/apps.sqlite3` — shared index for launcher and dock
+pub fn default_store_path() -> PathBuf {
+    dirs::config_dir()
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join("zex")
+        .join("apps.sqlite3")
+}
 
 /// Modification times of the current XDG application directories
 pub fn dir_mtimes() -> HashMap<PathBuf, SystemTime> {
@@ -93,7 +101,7 @@ impl Store {
 
     pub fn snapshot(&self) -> rusqlite::Result<Vec<AppInfo>> {
         let mut stmt = self.conn.prepare(
-            "SELECT id, title, command, icon_name, icon_file, summary, tags, wants_terminal, source \
+            "SELECT id, title, command, icon_name, icon_file, summary, tags, wants_terminal, actions, source \
              FROM apps",
         )?;
         let rows = stmt.query_map([], |row| {
@@ -107,12 +115,23 @@ impl Store {
                 row.get::<_, String>(6)?,
                 row.get::<_, bool>(7)?,
                 row.get::<_, String>(8)?,
+                row.get::<_, String>(9)?,
             ))
         })?;
         let mut apps = Vec::new();
         for row in rows {
-            let (id, title, command, icon_name, icon_file, summary, tags, wants_terminal, source) =
-                row?;
+            let (
+                id,
+                title,
+                command,
+                icon_name,
+                icon_file,
+                summary,
+                tags,
+                wants_terminal,
+                actions,
+                source,
+            ) = row?;
             apps.push(AppInfo {
                 id,
                 title,
@@ -122,6 +141,7 @@ impl Store {
                 summary,
                 tags: serde_json::from_str(&tags).unwrap_or_default(),
                 wants_terminal,
+                actions: serde_json::from_str(&actions).unwrap_or_default(),
                 source: PathBuf::from(source),
             });
         }
@@ -154,8 +174,8 @@ impl Store {
                 .unwrap_or(0);
             tx.execute(
                 "INSERT INTO apps \
-                 (id, title, command, icon_name, icon_file, summary, tags, wants_terminal, source, mtime) \
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+                 (id, title, command, icon_name, icon_file, summary, tags, wants_terminal, actions, source, mtime) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
                 params![
                     app.id,
                     app.title,
@@ -165,6 +185,7 @@ impl Store {
                     app.summary,
                     serde_json::to_string(&app.tags).unwrap_or_default(),
                     app.wants_terminal,
+                    serde_json::to_string(&app.actions).unwrap_or_default(),
                     app.source.to_string_lossy().to_string(),
                     mtime,
                 ],
@@ -186,6 +207,7 @@ fn init(conn: &Connection) -> rusqlite::Result<()> {
              summary TEXT,
              tags TEXT NOT NULL,
              wants_terminal INTEGER NOT NULL,
+             actions TEXT NOT NULL,
              source TEXT NOT NULL,
              mtime INTEGER NOT NULL
          );

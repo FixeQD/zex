@@ -31,7 +31,6 @@ fn test_dir(name: &str) -> PathBuf {
 fn defaults_match_reference() {
     let s = Settings::default();
 
-    // Exo/ignis/user_settings.py: Appearance.WallpaperColors
     let wc = &s.appearance.wallcolors;
     assert_eq!(wc.quickselect_path, "");
     assert_eq!(wc.wallpaper_path, "");

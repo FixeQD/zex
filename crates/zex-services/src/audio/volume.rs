@@ -33,6 +33,14 @@ pub struct VolumeControl {
     sender: Arc<Mutex<Option<pw::channel::Sender<VolumeCommand>>>>,
 }
 
+impl Default for VolumeControl {
+    fn default() -> Self {
+        Self {
+            sender: Arc::new(Mutex::new(None)),
+        }
+    }
+}
+
 impl VolumeControl {
     /// Set the sink volume, clamped to `[0.0, 1.5]`
     pub fn set_volume(&self, volume: f32) {
@@ -57,6 +65,7 @@ impl VolumeControl {
 pub fn spawn_volume_monitor(
     state: Arc<Mutex<VolumeState>>,
     ready_tx: oneshot::Sender<()>,
+    events: flume::Sender<VolumeState>,
 ) -> VolumeControl {
     let sender = Arc::new(Mutex::new(None));
     let control = VolumeControl {
@@ -74,6 +83,7 @@ pub fn spawn_volume_monitor(
                     Arc::clone(&state),
                     rx,
                     ready_tx.take().expect("ready channel already taken"),
+                    events.clone(),
                 ) {
                     warn!("audio: volume monitor failed, retrying in 2s: {error}");
                 }

@@ -18,10 +18,15 @@ use relm4::prelude::*;
 use relm4::{Component, ComponentController};
 use zex_core::store::Subscription;
 use zex_core::{Settings, SettingsStore};
+use zex_launcher::apps::{self, AppInfo, PinnedApps};
+use zex_services::audio::VolumeControl;
+use zex_services::audio::volume::{VolumeState, spawn_volume_monitor};
 use zex_services::compositor::{self, CompositorEvent};
 use zex_services::mpris::{self, MprisEvent, MprisPlayer};
+use zex_services::tray::{SystemTray, TrayEvent, TrayItem};
+use zex_services::upower::{Battery, Upower};
 
-use crate::widgets::{SharedSettings, Widgets};
+use crate::widgets::{DockDeps, SharedSettings, Widgets};
 use window::{BarMsg, BarWindow, BarWindowInit};
 
 pub const BAR_CSS_SCSS: &str = include_str!("../../assets/css/bar.scss");
@@ -42,6 +47,28 @@ pub enum BarsMsg {
     MonitorsChanged,
     Compositor(CompositorEvent),
     Media(MprisEvent),
+    Apps(apps::Change),
+    Pins(Vec<String>),
+    Tray(TrayEvent),
+    Batteries(Vec<Battery>),
+    Volume(VolumeState),
+}
+
+/// Commands routed to the status runtime thread (tray + power events)
+pub enum StatusCommand {
+    TrayActivate {
+        service: String,
+        x: i32,
+        y: i32,
+    },
+    TrayMenu {
+        service: String,
+        reply: flume::Sender<Vec<zex_services::tray::MenuEntry>>,
+    },
+    TrayMenuAction {
+        service: String,
+        id: i32,
+    },
 }
 
 pub struct Bars {
@@ -57,6 +84,20 @@ pub struct Bars {
     players: HashMap<String, MprisPlayer>,
     /// Routes player commands to the MPRIS runtime thread
     media_cmds: flume::Sender<String>,
+    /// Routes tray and battery commands to the status runtime thread
+    status_cmds: flume::Sender<StatusCommand>,
+    /// Live application catalog, refreshed on launcher changes
+    apps: Vec<AppInfo>,
+    /// Pinned app ids, watched for reordering and quick-centering
+    pins: Rc<PinnedApps>,
+    /// Live tray item snapshot, fed by the status thread
+    tray_items: Vec<TrayItem>,
+    /// Live battery snapshot, fed by the status thread
+    batteries: Vec<Battery>,
+    /// Live quick settings volume level, fed by the volume thread
+    volume: VolumeState,
+    /// Sends clamp/scroll commands to the volume thread
+    volume_control: VolumeControl,
 }
 
 impl Bars {
@@ -73,6 +114,19 @@ impl Bars {
             switcher,
             media_control,
             self.display_offset(),
+            DockDeps {
+                on_quickcenter: Rc::new(|| {
+                    tracing::info!(
+                        "quick center requested; window manager lands in a later commit"
+                    );
+                }),
+                tray: crate::bar::widgets::systeminfotray::TrayControl::new(
+                    self.status_cmds.clone(),
+                ),
+                volume: self.volume_control.clone(),
+                apps: self.apps.clone(),
+                pins: Rc::clone(&self.pins),
+            },
         )
     }
 
@@ -102,6 +156,41 @@ impl Bars {
         let players: Vec<MprisPlayer> = self.players.values().cloned().collect();
         for registry in self.widgets_by_monitor.values() {
             registry.on_media(&players);
+        }
+    }
+
+    /// Applications catalog pushed into every monitor registry
+    fn push_apps(&self) {
+        for registry in self.widgets_by_monitor.values() {
+            registry.on_apps(&self.apps);
+        }
+    }
+
+    /// Pin set pushed into every monitor registry (the registry reads it live)
+    fn push_pins(&self) {
+        for registry in self.widgets_by_monitor.values() {
+            registry.on_pins();
+        }
+    }
+
+    /// Tray items pushed into every monitor registry
+    fn push_tray(&self) {
+        for registry in self.widgets_by_monitor.values() {
+            registry.on_tray(&self.tray_items);
+        }
+    }
+
+    /// Battery snapshot pushed into every monitor registry
+    fn push_batteries(&self) {
+        for registry in self.widgets_by_monitor.values() {
+            registry.on_batteries(&self.batteries);
+        }
+    }
+
+    /// Volume state pushed into every monitor registry
+    fn push_volume(&self) {
+        for registry in self.widgets_by_monitor.values() {
+            registry.on_volume(self.volume.volume, self.volume.muted);
         }
     }
 
@@ -168,6 +257,7 @@ impl SimpleComponent for Bars {
         let settings = Rc::new(Mutex::new(store.get().clone()));
 
         let provider = gtk4::CssProvider::new();
+        let (status_cmds, status_cmd_rx) = flume::unbounded();
         let mut model = Self {
             settings: Rc::clone(&settings),
             widgets_by_monitor: HashMap::new(),
@@ -178,6 +268,13 @@ impl SimpleComponent for Bars {
             compositor: None,
             players: HashMap::new(),
             media_cmds: flume::unbounded().0,
+            status_cmds,
+            apps: Vec::new(),
+            pins: Rc::new(PinnedApps::load(None)),
+            tray_items: Vec::new(),
+            batteries: Vec::new(),
+            volume: VolumeState::default(),
+            volume_control: VolumeControl::default(),
         };
 
         // Compositor backend: events stream into the GTK loop, no polling
@@ -237,6 +334,119 @@ impl SimpleComponent for Bars {
             });
         });
 
+        // Tray host + battery events on a small dedicated runtime: commands in, events out
+        let status_out = sender.clone();
+        std::thread::spawn(move || {
+            let runtime = match tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+            {
+                Ok(runtime) => runtime,
+                Err(err) => {
+                    tracing::warn!("status runtime unavailable: {err}");
+                    return;
+                }
+            };
+            runtime.block_on(async {
+                let Ok(host_conn) = zbus::Connection::session().await else {
+                    tracing::warn!("session bus unavailable; tray stays off");
+                    return;
+                };
+                let Ok(tray) = SystemTray::host(host_conn).await else {
+                    tracing::warn!("tray service unavailable");
+                    return;
+                };
+                let Ok(upower_conn) = zbus::Connection::session().await else {
+                    tracing::warn!("session bus unavailable; battery stays off");
+                    return;
+                };
+                let Ok(upower) = Upower::connect(upower_conn).await else {
+                    tracing::warn!("upower service unavailable");
+                    return;
+                };
+                if let Ok(batteries) = upower.batteries().await {
+                    status_out.input(BarsMsg::Batteries(batteries));
+                }
+                let tray_events = tray.events().clone();
+                let battery_events = upower.events().clone();
+                loop {
+                    tokio::select! {
+                        command = status_cmd_rx.recv_async() => {
+                            let Ok(command) = command else { break };
+                            match command {
+                                StatusCommand::TrayActivate { service, x, y } => {
+                                    if let Err(err) = tray.activate(&service, x, y).await {
+                                        tracing::debug!("tray activate failed: {err:#}");
+                                    }
+                                }
+                                StatusCommand::TrayMenu { service, reply } => {
+                                    let entries = tray.menu(&service).await.unwrap_or_default();
+                                    let _ = reply.send(entries);
+                                }
+                                StatusCommand::TrayMenuAction { service, id } => {
+                                    let _ = tray.menu_action(&service, id).await;
+                                }
+                            }
+                        }
+                        event = tray_events.recv_async() => {
+                            let Ok(event) = event else { break };
+                            status_out.input(BarsMsg::Tray(event));
+                        }
+                        event = battery_events.recv_async() => {
+                            let Ok(_event) = event else { break };
+                            if let Ok(batteries) = upower.batteries().await {
+                                status_out.input(BarsMsg::Batteries(batteries));
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // Quick settings volume: clamps into PipeWire, clamped states come back as events
+        let (volume_events, volume_event_rx) = flume::unbounded();
+        let volume_state = std::sync::Arc::new(std::sync::Mutex::new(VolumeState::default()));
+        model.volume_control = spawn_volume_monitor(
+            volume_state,
+            tokio::sync::oneshot::channel().0,
+            volume_events,
+        );
+        let volume_out = sender.clone();
+        std::thread::spawn(move || {
+            while let Ok(state) = volume_event_rx.recv() {
+                volume_out.input(BarsMsg::Volume(state));
+            }
+        });
+
+        // Applications catalog: initial scan, then re-scan on file change events
+        model.apps = match apps::load_apps(Some(&apps::default_store_path())) {
+            Ok(catalog) => catalog,
+            Err(err) => {
+                tracing::warn!("applications scan failed: {err:#}");
+                Vec::new()
+            }
+        };
+        if let Ok(watchdog) = apps::Watchdog::start() {
+            let watchdog_sender = sender.clone();
+            std::thread::spawn(move || {
+                loop {
+                    let changes = watchdog.next(std::time::Duration::from_secs(30));
+                    for change in changes {
+                        watchdog_sender.input(BarsMsg::Apps(change));
+                    }
+                }
+            });
+        }
+
+        // Pin changes (reordered in the launcher) rebuild the task dock
+        let pins_rx = model.pins.changes();
+        let pins_sender = sender.clone();
+        std::thread::spawn(move || {
+            while let Ok(ids) = pins_rx.recv() {
+                pins_sender.input(BarsMsg::Pins(ids));
+            }
+        });
+
         if let Some(display) = gdk::Display::default() {
             if let Err(err) = install_bar_css(&model._provider) {
                 tracing::warn!("{err:#}");
@@ -255,6 +465,10 @@ impl SimpleComponent for Bars {
             model.sync_monitors(&display);
             model.push_compositor();
             model.push_media();
+            model.push_apps();
+            model.push_tray();
+            model.push_batteries();
+            model.push_volume();
         } else {
             tracing::warn!("no display available; bars will stay hidden");
         }
@@ -302,6 +516,57 @@ impl SimpleComponent for Bars {
                     }
                 }
                 self.push_media();
+            }
+            BarsMsg::Apps(_change) => {
+                self.apps = match apps::load_apps(Some(&apps::default_store_path())) {
+                    Ok(catalog) => catalog,
+                    Err(err) => {
+                        tracing::warn!("applications re-scan failed: {err:#}");
+                        return;
+                    }
+                };
+                self.push_apps();
+            }
+            BarsMsg::Pins(_ids) => {
+                self.push_pins();
+                self.push_apps();
+            }
+            BarsMsg::Tray(event) => {
+                self.apply_tray_event(&event);
+                self.push_tray();
+            }
+            BarsMsg::Batteries(batteries) => {
+                self.batteries = batteries;
+                self.push_batteries();
+            }
+            BarsMsg::Volume(state) => {
+                self.volume = state;
+                self.push_volume();
+            }
+        }
+    }
+}
+
+impl Bars {
+    fn apply_tray_event(&mut self, event: &TrayEvent) {
+        match event {
+            TrayEvent::ItemAdded(item) => {
+                self.tray_items
+                    .retain(|existing| existing.service != item.service);
+                self.tray_items.push(item.clone());
+            }
+            TrayEvent::ItemRemoved(service) => {
+                self.tray_items
+                    .retain(|existing| &existing.service != service);
+            }
+            TrayEvent::ItemChanged(service, icon) => {
+                if let Some(item) = self
+                    .tray_items
+                    .iter_mut()
+                    .find(|existing| &existing.service == service)
+                {
+                    item.icon = icon.clone();
+                }
             }
         }
     }

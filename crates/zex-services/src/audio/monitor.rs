@@ -21,12 +21,15 @@ struct MonitorState {
     node: Option<pw::node::Node>,
     _proxies: Proxies,
     ready_tx: Option<oneshot::Sender<()>>,
+    /// Last emitted volume; dedupes the initial and repeated props pushes
+    last_event: Option<(f32, bool)>,
 }
 
 pub fn run_volume_monitor(
     state: Arc<Mutex<VolumeState>>,
     cmd_rx: pw::channel::Receiver<VolumeCommand>,
     ready_tx: oneshot::Sender<()>,
+    events: flume::Sender<VolumeState>,
 ) -> Result<(), pw::Error> {
     pw::init();
     let mainloop = pw::main_loop::MainLoopRc::new(None)?;
@@ -41,6 +44,7 @@ pub fn run_volume_monitor(
             _listeners: Vec::new(),
         },
         ready_tx: Some(ready_tx),
+        last_event: None,
     }));
 
     let _reg_listener = registry
@@ -68,6 +72,8 @@ pub fn run_volume_monitor(
                     node.subscribe_params(&[ParamType::Props]);
                     let state = Arc::clone(&state);
                     let ready_tx = Rc::new(RefCell::new(inner.borrow_mut().ready_tx.take()));
+                    let param_inner = Rc::clone(&inner);
+                    let param_events = events.clone();
                     let param_listener = node
                         .add_listener_local()
                         .param(move |_seq, _id, _index, _next, param| {
@@ -77,6 +83,10 @@ pub fn run_volume_monitor(
                                 let mut state = state.lock().unwrap();
                                 state.volume = volume;
                                 state.muted = muted;
+                                if param_inner.borrow().last_event != Some((volume, muted)) {
+                                    param_inner.borrow_mut().last_event = Some((volume, muted));
+                                    let _ = param_events.send(VolumeState { volume, muted });
+                                }
                             }
                             if let Some(tx) = ready_tx.borrow_mut().take() {
                                 let _ = tx.send(());

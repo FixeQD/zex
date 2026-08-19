@@ -22,6 +22,7 @@ fn wraps_terminal_entries() {
         summary: None,
         tags: vec![],
         wants_terminal: true,
+        actions: vec![],
         source: "/tmp/shell.desktop".into(),
     };
     let wrapped = DEFAULT_TERMINAL_TEMPLATE.replace("%command%", &strip_field_codes(&app.command));

@@ -12,6 +12,7 @@ fn app(title: &str) -> AppInfo {
         summary: None,
         tags: vec![],
         wants_terminal: false,
+        actions: vec![],
         source: PathBuf::from("/tmp/app.desktop"),
     }
 }

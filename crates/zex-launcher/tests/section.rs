@@ -13,6 +13,7 @@ fn app(id: &str, name: &str) -> Item {
         summary: None,
         tags: vec![],
         wants_terminal: false,
+        actions: vec![],
         source: PathBuf::from("/tmp/apps").join(format!("{id}.desktop")),
     })
 }

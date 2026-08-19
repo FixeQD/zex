@@ -24,6 +24,13 @@ fn build_widgets(settings: SharedSettings) -> Widgets {
         None,
         MprisControl::new(flume::unbounded().0),
         0,
+        zex_shell::widgets::DockDeps {
+            on_quickcenter: Rc::new(|| {}),
+            tray: zex_shell::bar::widgets::systeminfotray::TrayControl::new(flume::unbounded().0),
+            volume: zex_services::audio::VolumeControl::default(),
+            apps: Vec::new(),
+            pins: Rc::new(zex_launcher::apps::PinnedApps::load(None)),
+        },
     )
 }
 
@@ -41,6 +48,8 @@ fn registry_contains_implemented_modules_only() {
         Module::Workspaces,
         Module::WindowInfo,
         Module::Media,
+        Module::Tasks,
+        Module::SystemInfoTray,
     ];
     for module in implemented {
         assert!(widgets.get(module).is_some(), "{} missing", module.name());

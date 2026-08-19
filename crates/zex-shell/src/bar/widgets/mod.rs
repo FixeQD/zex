@@ -1,6 +1,11 @@
 //! Service-backed bar widgets
 
+pub mod battery;
+pub mod icon;
 pub mod media;
+pub mod popover;
+pub mod systeminfotray;
+pub mod tasks;
 pub mod window_info;
 pub mod workspaces;
 

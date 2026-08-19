@@ -3,16 +3,18 @@
 mod discover;
 pub mod model;
 pub mod parse;
+mod pinned;
 mod run;
 mod session;
 mod store;
 mod watch;
 
 pub use discover::{collect_apps, collect_from, xdg_app_dirs};
-pub use model::AppInfo;
-pub use run::{DEFAULT_TERMINAL_TEMPLATE, spawn_entry, strip_field_codes};
+pub use model::{AppInfo, DesktopAction};
+pub use pinned::{PinnedApps, default_pins_path};
+pub use run::{DEFAULT_TERMINAL_TEMPLATE, spawn_command, spawn_entry, strip_field_codes};
 pub use session::session_env;
-pub use store::{Store, dir_mtimes};
+pub use store::{Store, default_store_path, dir_mtimes};
 pub use watch::{Change, Watchdog, translate};
 
 use crate::icons::find_icon_file;

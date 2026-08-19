@@ -32,6 +32,17 @@ pub fn spawn_entry(app: &AppInfo, terminal_template: &str) -> anyhow::Result<()>
     }
 }
 
+/// Launch a raw command line (desktop actions, user commands) detached
+pub fn spawn_command(command: &str) -> anyhow::Result<()> {
+    let mut words = command.split_whitespace();
+    let bin = words.next().unwrap_or_default();
+    if bin.is_empty() {
+        anyhow::bail!("empty command");
+    }
+    let args: Vec<&str> = words.collect();
+    detach(bin, &args)
+}
+
 /// Remove freedesktop Exec field codes that need file or URL arguments
 pub fn strip_field_codes(raw: &str) -> String {
     let mut command = raw.to_string();

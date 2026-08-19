@@ -88,11 +88,7 @@ impl WindowInfoWidget {
             .map(|w| w.class.as_str())
             .filter(|c| !c.is_empty())
         {
-            let name = if has_icon(class) {
-                class.to_owned()
-            } else {
-                app_icon_fallback(&app_id)
-            };
+            let name = super::icon::window_icon(class, &app_id);
             self.icon.set_icon_name(Some(&name));
         } else {
             self.icon.set_icon_name(Some(FALLBACK_ICON));
@@ -144,21 +140,6 @@ impl WindowInfoWidget {
             self.container.set_width_request(-1);
         }
     }
-}
-
-/// Icon for the app-id, falling back to theme browsing only when the theme lacks it
-fn app_icon_fallback(app_id: &str) -> String {
-    if has_icon(app_id) {
-        app_id.to_owned()
-    } else {
-        FALLBACK_ICON.to_owned()
-    }
-}
-
-fn has_icon(name: &str) -> bool {
-    gtk4::gdk::Display::default()
-        .map(|display| gtk4::IconTheme::for_display(&display).has_icon(name))
-        .unwrap_or(false)
 }
 
 pub fn truncate(s: &str) -> String {

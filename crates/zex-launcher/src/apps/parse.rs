@@ -1,6 +1,6 @@
 //! Parsing of XDG `.desktop` files
 
-use super::model::AppInfo;
+use super::model::{AppInfo, DesktopAction};
 use freedesktop_desktop_entry::DesktopEntry as FdEntry;
 use std::path::Path;
 
@@ -30,6 +30,20 @@ pub fn parse_app_file(path: &Path) -> Option<AppInfo> {
             })
             .unwrap_or_default(),
         wants_terminal: fd_entry.terminal(),
+        actions: fd_entry
+            .actions()
+            .unwrap_or_default()
+            .into_iter()
+            .filter(|id| !id.is_empty())
+            .filter_map(|id| {
+                let name = fd_entry.action_name(&id, locales)?.to_string();
+                let command = fd_entry.action_exec(&id)?.trim().to_string();
+                if command.is_empty() {
+                    return None;
+                }
+                Some(DesktopAction { name, command })
+            })
+            .collect(),
         source: path.to_path_buf(),
     })
 }
