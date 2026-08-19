@@ -1,3 +1,4 @@
+use anyhow::Context;
 use clap::Parser;
 
 #[derive(Parser)]
@@ -15,6 +16,8 @@ enum Command {
     ToggleWindow { name: String },
     /// Run a registered command
     RunCommand { name: String },
+    /// Lock the session through org.zex.Lock
+    Lock,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -30,7 +33,25 @@ fn main() -> anyhow::Result<()> {
         Command::RunCommand { name } => {
             println!("run-command {name}");
         }
+        Command::Lock => lock_session()?,
     }
 
+    Ok(())
+}
+
+/// Ask the session bus lock service to lock
+/// Fails when the shell is not running or has not exported `org.zex.Lock` yet
+fn lock_session() -> anyhow::Result<()> {
+    use zex_services::lockscreen::{LOCK_DESTINATION, LOCK_INTERFACE, LOCK_OBJECT_PATH};
+    let conn = zbus::blocking::Connection::session().context("session bus unavailable")?;
+    conn.call_method(
+        Some(LOCK_DESTINATION),
+        LOCK_OBJECT_PATH,
+        Some(LOCK_INTERFACE),
+        "Lock",
+        &(),
+    )
+    .context("org.zex.Lock refused the lock request")?;
+    println!("locked");
     Ok(())
 }

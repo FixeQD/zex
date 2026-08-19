@@ -5,6 +5,7 @@
 //! running compositor.
 
 pub mod bar;
+pub mod lockscreen;
 pub mod shared;
 pub mod wallpaper;
 pub mod widgets;

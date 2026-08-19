@@ -1,16 +1,14 @@
 //! Native background renderer: one `Layer::Background` surface per monitor
 
-mod render;
+pub mod render;
 
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Mutex;
-use std::time::Duration;
 
 use gtk4::gdk;
 use gtk4::gio;
-use gtk4::glib;
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Layer, LayerShell};
 use relm4::prelude::*;
@@ -24,7 +22,7 @@ use crate::widgets::SharedSettings;
 pub const WALLPAPER_CSS_SCSS: &str = include_str!("../../assets/css/wallpaper.scss");
 
 /// Solid fallback colour when no wallpaper is configured
-const FALLBACK_RGB: (u8, u8, u8) = (0x13, 0x13, 0x16);
+pub const FALLBACK_RGB: (u8, u8, u8) = (0x13, 0x13, 0x16);
 
 #[derive(Debug)]
 pub enum WallpaperMsg {
@@ -83,28 +81,7 @@ impl WallpaperWindow {
             None => render::fallback_texture(FALLBACK_RGB),
         };
         self.picture.set_paintable(Some(&texture));
-        self.fade_in();
-    }
-
-    /// 300 ms opacity fade after a swap; stale fades abort via the generation
-    fn fade_in(&self) {
-        let generation = self.fade_gen.get() + 1;
-        self.fade_gen.set(generation);
-        self.picture.set_opacity(0.0);
-        let picture = self.picture.clone();
-        let gen_cell = Rc::clone(&self.fade_gen);
-        glib::timeout_add_local(Duration::from_millis(30), move || {
-            if gen_cell.get() != generation {
-                return glib::ControlFlow::Break;
-            }
-            let opacity = picture.opacity().min(1.0) + 0.1;
-            picture.set_opacity(opacity);
-            if opacity >= 1.0 {
-                glib::ControlFlow::Break
-            } else {
-                glib::ControlFlow::Continue
-            }
-        });
+        crate::shared::fade_in(&self.picture, &self.fade_gen);
     }
 }
 

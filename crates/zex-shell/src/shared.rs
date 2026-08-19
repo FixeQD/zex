@@ -1,10 +1,15 @@
 //! Shared layer-shell plumbing used by the bar and wallpaper components
 
+use std::cell::Cell;
+use std::rc::Rc;
+use std::time::Duration;
+
 use gtk4::gdk;
 use gtk4::gdk::prelude::*;
 use gtk4::gdk_pixbuf::{Colorspace, Pixbuf};
 use gtk4::gio;
 use gtk4::glib;
+use gtk4::prelude::*;
 use relm4::Sender;
 use zex_core::SettingsStore;
 use zex_core::store::Subscription;
@@ -76,4 +81,25 @@ pub fn texture_from_rgba(width: u32, height: u32, rgba: &[u8]) -> anyhow::Result
         width as i32 * 4,
     );
     Ok(gdk::Texture::for_pixbuf(&pixbuf))
+}
+
+/// 300 ms opacity fade after a texture swap
+pub fn fade_in(picture: &gtk4::Picture, fade_gen: &Rc<Cell<u64>>) {
+    let generation = fade_gen.get() + 1;
+    fade_gen.set(generation);
+    picture.set_opacity(0.0);
+    let picture = picture.clone();
+    let gen_cell = Rc::clone(fade_gen);
+    glib::timeout_add_local(Duration::from_millis(30), move || {
+        if gen_cell.get() != generation {
+            return glib::ControlFlow::Break;
+        }
+        let opacity = picture.opacity().min(1.0) + 0.1;
+        picture.set_opacity(opacity);
+        if opacity >= 1.0 {
+            glib::ControlFlow::Break
+        } else {
+            glib::ControlFlow::Continue
+        }
+    });
 }

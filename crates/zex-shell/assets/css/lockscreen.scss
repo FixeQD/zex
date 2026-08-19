@@ -1,0 +1,52 @@
+// Zex lockscreen: blurred wallpaper behind a dim layer, oversized clock, date and the password entry in the reference layout
+
+$surface-dim: #1a1b1e;
+$primary: #c8c0ff;
+$on-surface: rgba(255, 255, 255, 0.87);
+$error: #ffb4ab;
+
+.lockscreen {
+  background-color: $surface-dim;
+}
+
+.lockscreen-dim {
+  background-color: rgba(0, 0, 0, 0.55);
+}
+
+.lockscreen-content {
+  min-width: 260px;
+}
+
+.lockscreen-clock {
+  font-family: "Rubik", "Inter", "Cantarell", sans-serif;
+  font-weight: 800;
+  font-size: 64pt;
+  color: $on-surface;
+}
+
+.lockscreen-date {
+  font-family: "Rubik", "Inter", "Cantarell", sans-serif;
+  font-size: 16pt;
+  color: $on-surface;
+  margin-bottom: 32px;
+}
+
+.lockscreen-error {
+  font-family: "Rubik", "Inter", "Cantarell", sans-serif;
+  font-size: 12pt;
+  color: $error;
+}
+
+.lockscreen-entry {
+  min-width: 250px;
+  min-height: 50px;
+  border-radius: 10px;
+  background-color: $surface-dim;
+  color: $primary;
+  font-size: 14pt;
+  caret-color: $primary;
+}
+
+.lockscreen-entry:focus {
+  border: 2px solid $primary;
+}
