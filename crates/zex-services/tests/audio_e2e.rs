@@ -52,7 +52,11 @@ fn e2e_volume_monitor_tracks_and_controls_sink() {
     // Second monitor: independent observer of the same sink
     let observer = Arc::new(Mutex::new(VolumeState::default()));
     let (observer_ready_tx, observer_ready_rx) = oneshot::channel();
-    let _observer_control = spawn_volume_monitor(Arc::clone(&observer), observer_ready_tx, flume::unbounded().0);
+    let _observer_control = spawn_volume_monitor(
+        Arc::clone(&observer),
+        observer_ready_tx,
+        flume::unbounded().0,
+    );
     if !wait_ready(observer_ready_rx) {
         eprintln!("skipping: observer monitor never attached");
         return;

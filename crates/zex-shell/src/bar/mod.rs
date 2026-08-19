@@ -9,9 +9,7 @@ use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use std::sync::Mutex;
 
-use anyhow::{Context, Result};
 use gtk4::gdk;
-use gtk4::gdk::prelude::*;
 use gtk4::gio;
 use gtk4::prelude::*;
 use relm4::prelude::*;
@@ -26,17 +24,11 @@ use zex_services::mpris::{self, MprisEvent, MprisPlayer};
 use zex_services::tray::{SystemTray, TrayEvent, TrayItem};
 use zex_services::upower::{Battery, Upower};
 
+use crate::shared;
 use crate::widgets::{DockDeps, SharedSettings, Widgets};
 use window::{BarMsg, BarWindow, BarWindowInit};
 
 pub const BAR_CSS_SCSS: &str = include_str!("../../assets/css/bar.scss");
-
-fn install_bar_css(provider: &gtk4::CssProvider) -> Result<()> {
-    let css = grass::from_string(BAR_CSS_SCSS, &grass::Options::default())
-        .context("compiling bar css")?;
-    provider.load_from_string(&css);
-    Ok(())
-}
 
 /// Both bar instances hosted on every monitor
 const BAR_IDS: [u8; 2] = [0, 1];
@@ -77,7 +69,7 @@ pub struct Bars {
     windows: HashMap<(usize, u8), relm4::component::Connector<BarWindow>>,
     subscription: Option<Subscription>,
     monitors_model: Option<gio::ListModel>,
-    _provider: gtk4::CssProvider,
+    _provider: Option<gtk4::CssProvider>,
     /// Active window manager backend, used for state queries on events
     compositor: Option<Rc<dyn compositor::Compositor>>,
     /// Live MPRIS player snapshot, fed by the media event thread
@@ -196,8 +188,7 @@ impl Bars {
 
     /// Reconcile the window set with the current monitor list
     fn sync_monitors(&mut self, display: &gdk::Display) {
-        let monitors: Vec<gdk::Monitor> =
-            display.monitors().iter().filter_map(Result::ok).collect();
+        let monitors = shared::monitors(display);
         let present: HashSet<(usize, u8)> = (0..monitors.len())
             .flat_map(|idx| BAR_IDS.iter().map(move |bar_id| (idx, *bar_id)))
             .collect();
@@ -256,7 +247,6 @@ impl SimpleComponent for Bars {
         let widgets = view_output!();
         let settings = Rc::new(Mutex::new(store.get().clone()));
 
-        let provider = gtk4::CssProvider::new();
         let (status_cmds, status_cmd_rx) = flume::unbounded();
         let mut model = Self {
             settings: Rc::clone(&settings),
@@ -264,7 +254,7 @@ impl SimpleComponent for Bars {
             windows: HashMap::new(),
             subscription: None,
             monitors_model: None,
-            _provider: provider,
+            _provider: None,
             compositor: None,
             players: HashMap::new(),
             media_cmds: flume::unbounded().0,
@@ -448,19 +438,11 @@ impl SimpleComponent for Bars {
         });
 
         if let Some(display) = gdk::Display::default() {
-            if let Err(err) = install_bar_css(&model._provider) {
-                tracing::warn!("{err:#}");
-            }
-            gtk4::style_context_add_provider_for_display(
-                &display,
-                &model._provider,
-                gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
-            );
-            let monitors_model = display.monitors();
-            monitors_model.connect_items_changed({
-                let sender = sender.clone();
-                move |_, _, _, _| sender.input(BarsMsg::MonitorsChanged)
-            });
+            model._provider = Some(shared::install_css_provider(BAR_CSS_SCSS));
+            let monitors_model =
+                shared::watch_monitors(&display, sender.input_sender().clone(), || {
+                    BarsMsg::MonitorsChanged
+                });
             model.monitors_model = Some(monitors_model);
             model.sync_monitors(&display);
             model.push_compositor();
@@ -474,9 +456,8 @@ impl SimpleComponent for Bars {
         }
 
         // Live bridge: settings updates flow into the GTK loop as refreshes
-        let bridge_tx = sender.input_sender().clone();
-        let subscription = store.subscribe(move |snapshot| {
-            let _ = bridge_tx.send(BarsMsg::SettingsChanged(Box::new(snapshot.clone())));
+        let subscription = shared::subscribe_settings(&store, sender.input_sender().clone(), |s| {
+            BarsMsg::SettingsChanged(Box::new(s.clone()))
         });
         model.subscription = Some(subscription);
 

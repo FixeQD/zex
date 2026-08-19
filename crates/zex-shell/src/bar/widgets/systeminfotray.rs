@@ -143,17 +143,7 @@ fn pixmap_texture(icon: &TrayIcon, target: i32) -> Option<gdk::Texture> {
     for px in rgba.chunks_exact_mut(4) {
         px.swap(0, 3); // SNI ships ARGB32, textures want RGBA
     }
-    let stride = width * 4;
-    let pixbuf = gdk_pixbuf::Pixbuf::from_bytes(
-        &glib::Bytes::from(&rgba),
-        gdk_pixbuf::Colorspace::Rgb,
-        true,
-        8,
-        width as i32,
-        height as i32,
-        stride as i32,
-    );
-    Some(gdk::Texture::for_pixbuf(&pixbuf))
+    crate::shared::texture_from_rgba(width as u32, height as u32, &rgba).ok()
 }
 
 fn apply_glyph(label: &gtk4::Label, glyph: Option<&'static str>) {

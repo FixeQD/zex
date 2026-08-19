@@ -18,6 +18,7 @@ use zex_core::SettingsStore;
 use zex_core::store::Subscription;
 use zex_core::wallpaper::WallpaperState;
 
+use crate::shared;
 use crate::widgets::SharedSettings;
 
 pub const WALLPAPER_CSS_SCSS: &str = include_str!("../../assets/css/wallpaper.scss");
@@ -112,14 +113,7 @@ pub struct Wallpaper {
     settings: SharedSettings,
     subscription: Option<Subscription>,
     monitors_model: Option<gio::ListModel>,
-    _provider: gtk4::CssProvider,
-}
-
-fn render_css(provider: &gtk4::CssProvider) -> anyhow::Result<()> {
-    let css = grass::from_string(WALLPAPER_CSS_SCSS, &grass::Options::default())
-        .map_err(|err| anyhow::anyhow!("compiling wallpaper.scss: {err}"))?;
-    provider.load_from_string(&css);
-    Ok(())
+    _provider: Option<gtk4::CssProvider>,
 }
 
 #[relm4::component(pub)]
@@ -141,29 +135,20 @@ impl SimpleComponent for Wallpaper {
     ) -> ComponentParts<Self> {
         let widgets = view_output!();
         let settings = Rc::new(Mutex::new(store.get().clone()));
-        let provider = gtk4::CssProvider::new();
         let mut model = Self {
             windows: HashMap::new(),
             settings,
             subscription: None,
             monitors_model: None,
-            _provider: provider,
+            _provider: None,
         };
 
         if let Some(display) = gdk::Display::default() {
-            if let Err(err) = render_css(&model._provider) {
-                tracing::warn!("{err:#}");
-            }
-            gtk4::style_context_add_provider_for_display(
-                &display,
-                &model._provider,
-                gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
-            );
-            let monitors_model = display.monitors();
-            monitors_model.connect_items_changed({
-                let sender = sender.clone();
-                move |_, _, _, _| sender.input(WallpaperMsg::MonitorsChanged)
-            });
+            model._provider = Some(shared::install_css_provider(WALLPAPER_CSS_SCSS));
+            let monitors_model =
+                shared::watch_monitors(&display, sender.input_sender().clone(), || {
+                    WallpaperMsg::MonitorsChanged
+                });
             model.monitors_model = Some(monitors_model);
             model.sync_monitors(&display);
             model.refresh();
@@ -171,9 +156,9 @@ impl SimpleComponent for Wallpaper {
             tracing::warn!("no display available; wallpaper stays hidden");
         }
 
-        let bridge_tx = sender.input_sender().clone();
-        let subscription = store.subscribe(move |snapshot| {
-            let _ = bridge_tx.send(WallpaperMsg::SettingsChanged(Box::new(snapshot.clone())));
+        // Live bridge: settings updates flow into the GTK loop as refreshes
+        let subscription = shared::subscribe_settings(&store, sender.input_sender().clone(), |s| {
+            WallpaperMsg::SettingsChanged(Box::new(s.clone()))
         });
         model.subscription = Some(subscription);
 
@@ -209,8 +194,7 @@ impl Wallpaper {
     }
 
     fn sync_monitors(&mut self, display: &gdk::Display) {
-        let monitors: Vec<gdk::Monitor> =
-            display.monitors().iter().filter_map(Result::ok).collect();
+        let monitors = shared::monitors(display);
         let present: std::collections::HashSet<usize> = (0..monitors.len()).collect();
         self.windows.retain(|idx, _| present.contains(idx));
 
