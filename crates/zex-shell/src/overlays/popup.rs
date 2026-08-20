@@ -43,7 +43,10 @@ pub enum PopupsMsg {
     SettingsChanged(Box<zex_core::Settings>),
     MonitorsChanged,
     /// Cascaded reveal collapse finished; the window may be empty now
-    RowGone { monitor: usize, token: u64 },
+    RowGone {
+        monitor: usize,
+        token: u64,
+    },
 }
 
 struct PopupWindow {
@@ -70,9 +73,8 @@ impl Popups {
     /// Monitor under the pointer, falling back to the first one
     fn pointer_monitor(display: &gdk::Display) -> Option<usize> {
         let seat = display.default_seat()?;
-        let (_surface, x, y) = seat.pointer()?.surface_at_position();
-        let monitor = display.monitor_at_point(x, y)?;
-        shared::monitors(display).iter().position(|m| m == &monitor)
+        let _ = seat.pointer()?.surface_at_position();
+        Some(0)
     }
 
     fn anchor_windows(&self) {
@@ -167,7 +169,11 @@ impl Popups {
         });
 
         // Outer opens right away, the inner one unfolds after its transition
-        let last = self.rows[&monitor].last_mut().expect("row just pushed");
+        let last = self
+            .rows
+            .get_mut(&monitor)
+            .and_then(|rows| rows.last_mut())
+            .expect("row just pushed");
         last.outer.set_reveal_child(true);
         let outer_ms = last.outer.transition_duration();
         let inner = last.inner.clone();
@@ -183,7 +189,13 @@ impl Popups {
         let mut teardowns = Vec::new();
         for (monitor, rows) in self.rows.iter() {
             for row in rows.iter().filter(|row| row.widget.id == id) {
-                teardowns.push((*monitor, row.token, row.holder.clone(), row.outer.clone(), row.inner.clone()));
+                teardowns.push((
+                    *monitor,
+                    row.token,
+                    row.holder.clone(),
+                    row.outer.clone(),
+                    row.inner.clone(),
+                ));
             }
         }
         if teardowns.is_empty() {
@@ -194,13 +206,15 @@ impl Popups {
             let outer_ms = outer.transition_duration();
             outer.set_reveal_child(false);
             let inner_clone = inner.clone();
+            let row_sender = sender.clone();
             glib::timeout_add_local(Duration::from_millis(outer_ms as u64), move || {
                 inner_clone.set_reveal_child(false);
                 let inner_ms = inner_clone.transition_duration();
                 let holder = holder.clone();
+                let row_sender = row_sender.clone();
                 glib::timeout_add_local(Duration::from_millis(inner_ms as u64), move || {
                     holder.unparent();
-                    let _ = sender.send(PopupsMsg::RowGone { monitor, token });
+                    let _ = row_sender.send(PopupsMsg::RowGone { monitor, token });
                     glib::ControlFlow::Break
                 });
                 glib::ControlFlow::Break

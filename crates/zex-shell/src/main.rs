@@ -5,7 +5,9 @@ use zex_shell::bar::Bars;
 use zex_shell::corners::Corners;
 use zex_shell::launcher::Launcher;
 use zex_shell::lockscreen::Lockscreen;
+use zex_shell::notifications::NotificationsHub;
 use zex_shell::overlays::osd::Osd;
+use zex_shell::overlays::{popup::Popups, quickcenter::QuickCenter};
 use zex_shell::shared::ActionHandles;
 use zex_shell::wallpaper::Wallpaper;
 
@@ -18,6 +20,16 @@ fn main() -> anyhow::Result<()> {
     tracing::info!("zex shell starting");
 
     let actions = ActionHandles::new();
+
+    let notification_store = zex_core::SettingsStore::load().context("loading settings")?;
+    let hub = NotificationsHub::new(notification_store.get());
+    hub.connect(notification_store);
+
+    let store = zex_core::SettingsStore::load().context("loading settings")?;
+    let _popups = Popups::builder().launch((store, hub.clone()));
+
+    let store = zex_core::SettingsStore::load().context("loading settings")?;
+    let _quickcenter = QuickCenter::builder().launch((store, hub, actions.clone()));
 
     let store = zex_core::SettingsStore::load().context("loading settings")?;
     let _bars = Bars::builder().launch((store, actions.clone()));
@@ -65,6 +77,8 @@ fn main() -> anyhow::Result<()> {
     let _settings = zex_shell::settings::Settings::builder().launch((store, actions.clone()));
 
     let _m3_provider = zex_shell::m3::install_css();
+    let _overlays_provider =
+        zex_shell::shared::install_css_provider(include_str!("../assets/css/overlays.scss"));
     if std::env::var_os("ZEX_M3_SHOWCASE").is_some() {
         tracing::info!("ZEX_M3_SHOWCASE set; opening m3 showcase window");
         let showcase = zex_shell::m3::showcase::window();

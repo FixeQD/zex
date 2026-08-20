@@ -1,0 +1,105 @@
+// Material 3 overlay surfaces
+$surface: #131316;
+$surface-container: #1f1f24;
+$surface-container-high: #26262c;
+$surface-container-highest: #303036;
+$surface-dim: #101014;
+$on-surface: #e3e2e6;
+$on-surface-variant: #c7c6ce;
+$on-background: #e3e2e6;
+$primary: #d3e3fd;
+$primary-container: #354a63;
+$on-primary: #0a1d2f;
+$on-primary-container: #d3e3fd;
+$outline-variant: #47474e;
+
+.popup-close { background: transparent; }
+
+.notification,
+.notification-popup {
+  background-color: $surface-container;
+  color: $on-surface;
+  padding: 10px;
+  border-radius: 20px;
+
+  .notification-icon {
+    padding: 10px;
+    background-color: $surface-container-high;
+    border-radius: 999px;
+    color: $on-background;
+  }
+
+  .notification-info {
+    padding: 5px;
+    padding-left: 0;
+
+    .notification-summary { font-weight: 600; color: $on-surface; }
+    .notification-seperator, .notification-age { font-size: 0.75rem; opacity: 0.75; }
+    .notification-body { color: $on-surface-variant; }
+  }
+
+  .notification-actions-container {
+    margin-left: -10px;
+    margin-top: 5px;
+    margin-bottom: -5px;
+  }
+
+  .notification-close,
+  .notification-expand {
+    background-color: $surface-container-high;
+    color: $on-background;
+    min-width: 5px;
+    min-height: 16px;
+    padding: 0;
+    border-radius: 999px;
+
+    &:hover { background-color: $surface-container-highest; }
+  }
+
+  &.compact-popup {
+    padding: 5px;
+    border-radius: 999px;
+
+    .notification-icon { padding: 0; min-width: 32px; min-height: 32px; }
+    .notification-close { min-width: 24px; min-height: 24px; margin-right: 5px; }
+  }
+}
+
+.notification-popup-container {
+  margin: 10px;
+  min-width: 35rem;
+
+  .notification-popup {
+    border: 1px solid rgba(71, 71, 78, 0.5);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.quick-center {
+  margin: 5px;
+  min-width: 400px;
+  background-color: $surface-dim;
+  color: $on-background;
+  border: 1px solid rgba(71, 71, 78, 0.5);
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+
+  .notification-center {
+    padding: 10px;
+    border-radius: 30px 30px 20px 20px;
+
+    .notification-center-info-icon {
+      font-size: 24px;
+      color: $on-surface-variant;
+      margin-bottom: 5px;
+    }
+
+    .notification-center-info-label { font-weight: 500; }
+  }
+
+  .notification-center-content revealer .notification { border-radius: 8px; }
+  .bottom-controls { padding: 10px 0 0; }
+
+  .m3-slider { border-radius: 8px; margin: 2px 0; }
+}

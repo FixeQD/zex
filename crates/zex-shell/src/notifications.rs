@@ -58,7 +58,7 @@ impl NotificationsHub {
         if *config == updated {
             return;
         }
-        *config = updated;
+        *config = updated.clone();
         if let Some(client) = self.client.lock().unwrap().as_ref() {
             client.apply_config(updated);
         }

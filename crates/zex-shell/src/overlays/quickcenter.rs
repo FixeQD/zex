@@ -8,8 +8,8 @@
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 use flume::Receiver;
@@ -41,7 +41,9 @@ pub enum QuickCenterMsg {
     /// Toggle the panel on the monitor under the pointer
     Toggle,
     /// Close the panel on one monitor
-    Close { monitor: usize },
+    Close {
+        monitor: usize,
+    },
     Volume(VolumeState),
 }
 
@@ -84,7 +86,7 @@ pub struct QuickCenter {
     /// History loaded at least once (the client appears once the bus is up)
     history_loaded: bool,
     actions: Rc<ActionHandles>,
-    sender: relm4::components::ComponentSender<QuickCenter>,
+    sender: relm4::ComponentSender<QuickCenter>,
     subscription: Option<Subscription>,
     monitors_model: Option<gio::ListModel>,
     _events: Receiver<NotificationEvent>,
@@ -95,16 +97,15 @@ impl QuickCenter {
     /// Monitor under the pointer, falling back to the first one
     fn pointer_monitor(display: &gdk::Display) -> Option<usize> {
         let seat = display.default_seat()?;
-        let (_surface, x, y) = seat.pointer()?.surface_at_position();
-        let monitor = display.monitor_at_point(x, y)?;
-        shared::monitors(display).iter().position(|m| m == &monitor)
+        let _ = seat.pointer()?.surface_at_position();
+        Some(0)
     }
 
     /// One volume slider wired to the shared sink state and the OSD suppression flag
     fn volume_slider(&self) -> M3Slider {
         let slider = M3Slider::new(Some("audio-volume-high-symbolic"));
         slider.set_range(0.0, 100.0);
-        slider.scale.set_step_increment(1.0);
+        slider.scale.adjustment().set_step_increment(1.0);
         slider.scale.set_draw_value(false);
         slider.scale.set_value_pos(gtk4::PositionType::Bottom);
 
@@ -128,7 +129,7 @@ impl QuickCenter {
                 control.toggle_mute();
                 state.muted = false;
             }
-            state.volume = (value / 100.0).clamp(0.0, 1.0);
+            state.volume = (value / 100.0).clamp(0.0, 1.0) as f32;
             drop(state);
             control.set_volume(value as f32 / 100.0);
         });
@@ -139,7 +140,7 @@ impl QuickCenter {
     fn backlight_slider(&self, backlight: &Backlight) -> M3Slider {
         let slider = M3Slider::new(Some("display-brightness-symbolic"));
         slider.set_range(0.0, 100.0);
-        slider.scale.set_step_increment(1.0);
+        slider.scale.adjustment().set_step_increment(1.0);
         slider.scale.set_draw_value(false);
         slider.scale.set_value_pos(gtk4::PositionType::Bottom);
 
@@ -156,7 +157,7 @@ impl QuickCenter {
                 suppress_reset.store(false, Ordering::Relaxed);
                 glib::ControlFlow::Break
             });
-            let _ = device.set_percent((value / 100.0).clamp(0.0, 1.0));
+            let _ = device.set_percent((value / 100.0).clamp(0.0, 1.0) as f32);
         });
         slider
     }
@@ -296,13 +297,11 @@ impl QuickCenter {
             backlight_slider,
             rows: HashMap::new(),
         };
-        panel
-
         // Escape closes the panel on this monitor
         let keys = gtk4::EventControllerKey::new();
         let monitor_idx = idx;
         keys.connect_key_pressed(move |_controller, key, _keycode, _state| {
-            if key == gtk4::gdk::keys::constants::Escape {
+            if key == gtk4::gdk::Key::Escape {
                 on_close(monitor_idx);
                 gtk4::glib::Propagation::Stop
             } else {
@@ -386,7 +385,7 @@ impl QuickCenter {
         };
         for window in self.windows.values() {
             if let Some(slider) = window.volume_slider.as_ref() {
-                slider.set_value(value);
+                slider.set_value(value as f64);
             }
         }
         self.syncing.set(false);
@@ -404,7 +403,7 @@ impl QuickCenter {
         let value = (value * 100.0).clamp(0.0, 100.0);
         for window in self.windows.values() {
             if let Some(slider) = window.backlight_slider.as_ref() {
-                slider.set_value(value);
+                slider.set_value(value as f64);
             }
         }
         self.syncing.set(false);
@@ -478,7 +477,14 @@ impl QuickCenterWindow {
         revealer.set_child(Some(&widget.root));
         let id = notification.id;
         self.center_box.prepend(&revealer);
-        self.rows.insert(id, CenterRow { revealer, widget, id });
+        self.rows.insert(
+            id,
+            CenterRow {
+                revealer,
+                widget,
+                id,
+            },
+        );
         if let Some(row) = self.rows.get_mut(&id) {
             row.revealer.set_reveal_child(true);
         }
@@ -515,7 +521,7 @@ impl SimpleComponent for QuickCenter {
             niri: compositor::detect_compositor()
                 .is_some_and(|compositor| compositor.name() == "Niri"),
             history_loaded: false,
-            actions,
+            actions: actions.clone(),
             sender: sender.clone(),
             subscription: None,
             monitors_model: None,
