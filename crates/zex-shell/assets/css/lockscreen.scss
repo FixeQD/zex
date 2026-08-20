@@ -1,9 +1,10 @@
-// Zex lockscreen: blurred wallpaper behind a dim layer, oversized clock, date and the password entry in the reference layout
-
-$surface-dim: #1a1b1e;
-$primary: #c8c0ff;
-$on-surface: rgba(255, 255, 255, 0.87);
-$error: #ffb4ab;
+$surface-dim: #1a1b1e !default;
+$primary: #c8c0ff !default;
+$on-surface: rgba(255, 255, 255, 0.87) !default;
+$error: #ffb4ab !default;
+$surface: #131316 !default;
+$on-primary: #ffffff !default;
+$background: #131316 !default;
 
 .lockscreen {
   background-color: $surface-dim;

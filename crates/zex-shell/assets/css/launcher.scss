@@ -1,15 +1,18 @@
 // Zex launcher
 
-$surface: #131316;
-$surface-container-high: #26262c;
-$surface-container-highest: #2c2c33;
-$on-surface: #e3e2e6;
-$on-surface-variant: #c7c6ce;
-$primary: #d3e3fd;
-$secondary-container: #262c3a;
-$on-secondary-container: #d9e2f8;
-$outline-variant: #47474e;
-$scrim: rgba(0, 0, 0, 0.35);
+$surface: #131316 !default;
+$surface-container-high: #26262c !default;
+$surface-container-highest: #2c2c33 !default;
+$on-surface: #e3e2e6 !default;
+$on-surface-variant: #c7c6ce !default;
+$primary: #d3e3fd !default;
+$secondary-container: #262c3a !default;
+$on-secondary-container: #d9e2f8 !default;
+$outline-variant: #47474e !default;
+$scrim: rgba(0, 0, 0, 0.35) !default;
+$surface-container: #1f1f24 !default;
+$on-primary: #123258 !default;
+$background: #131316 !default;
 
 .launcher-backdrop {
   background-color: $scrim;

@@ -3,9 +3,6 @@
 mod agent;
 mod types;
 
-mod agent;
-mod types;
-
 use anyhow::{Context, Result, anyhow};
 use std::collections::HashMap;
 use zbus::Connection;

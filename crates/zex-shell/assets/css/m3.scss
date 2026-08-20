@@ -1,231 +1,563 @@
-// Material 3 component tokens (fallback palette, replaced by matugen output)
+$primary: #d3e3fd !default;
+$on-primary: #123258 !default;
+$primary-container: #354a63 !default;
+$on-primary-container: #d3e3fd !default;
+$secondary: #cdd5e9 !default;
+$on-secondary: #2a2f3f !default;
+$secondary-container: #262c3a !default;
+$on-secondary-container: #d9e2f8 !default;
+$tertiary: #e0bcc6 !default;
+$on-tertiary: #45263a !default;
+$tertiary-container: #5d3a4f !default;
+$on-tertiary-container: #ffd7f0 !default;
+$error: #ffb4ab !default;
+$on-error: #690005 !default;
+$error-container: #93000a !default;
+$on-error-container: #ffb4ab !default;
+$background: #131316 !default;
+$on-background: #e3e2e6 !default;
+$surface: #131316 !default;
+$on-surface: #e3e2e6 !default;
+$surface-variant: #47474e !default;
+$on-surface-variant: #c7c6ce !default;
+$outline: #87878c !default;
+$outline-variant: #47474e !default;
+$shadow: rgba(0, 0, 0, 0.35) !default;
+$scrim: rgba(0, 0, 0, 0.4) !default;
+$surface-dim: #131316 !default;
+$surface-bright: #3a3a41 !default;
+$surface-container-lowest: #0e0e11 !default;
+$surface-container-low: #1b1b1f !default;
+$surface-container: #1f1f24 !default;
+$surface-container-high: #26262c !default;
+$surface-container-highest: #303036 !default;
+$inverse-surface: #e3e2e6 !default;
+$inverse-on-surface: #2f3036 !default;
+$inverse-primary: #4a5c92 !default;
 
-$surface: #131316;
-$surface-container: #1f1f24;
-$surface-container-high: #26262c;
-$surface-container-highest: #303036;
-$on-surface: #e3e2e6;
-$on-surface-variant: #c7c6ce;
-$primary: #d3e3fd;
-$on-primary: #123258;
-$secondary: #cdd5e9;
-$secondary-container: #262c3a;
-$on-secondary-container: #d9e2f8;
-$outline-variant: #47474e;
-$shadow: rgba(0, 0, 0, 0.35);
+$elevation-1: 0px 1px 2px rgba($shadow, 0.6);
+$elevation-2: 0px 1px 2px rgba($shadow, 0.6);
+$elevation-3: 0px 1px 3px rgba($shadow, 0.6);
+$elevation-4: 0px 2px 3px rgba($shadow, 0.6);
+$elevation-5: 0px 4px 4px rgba($shadow, 0.6);
+$square-radius: 12px;
 
 .m3-testing-window {
-    background-color: $surface;
+    background-color: $background;
 }
 
-// ------------------------------------------------------------- buttons
+.m3-icon {
+    font-family: "Material Symbols Outlined", "Material Icons Outlined";
+}
 
 .m3-button {
-    min-height: 40px;
-    padding: 0 16px;
-    border: none;
-    border-radius: 9999px;
-    box-shadow: none;
-    transition: background-color 160ms ease, box-shadow 160ms ease;
-
+    transition-timing-function: cubic-bezier(0.3, 0, 0, 1);
+    transition:
+        border-radius 50ms,
+        background-color 200ms;
+    label {
+        font-weight: 400;
+        line-height: 0px;
+    }
+    .m3-button-icon {
+        font-family: "Material Symbols Outlined", "Material Icons Outlined";
+    }
     .m3-button-label {
         color: $on-surface;
-        font-weight: 400;
     }
-
     &:focus-visible {
-        outline: 2px solid $secondary;
+        outline: 3px solid $secondary;
         outline-offset: 2px;
     }
 
     &.icon-only {
-        padding: 0 10px;
-    }
-
-    // Sizes
-    &.xs {
-        min-height: 32px;
-        padding: 0 12px;
-
-        &.icon-only {
-            padding: 0 6px;
+        .m3-button-icon {
+            font-variation-settings: "FILL" 1;
         }
     }
-    &.m {
-        min-height: 56px;
-        padding: 0 24px;
 
-        &.icon-only {
-            padding: 0 16px;
-        }
-    }
-    &.l {
-        min-height: 96px;
-        padding: 0 48px;
-    }
-    &.xl {
-        min-height: 136px;
-        padding: 0 64px;
-    }
-
-    // Shapes
-    &.square {
-        border-radius: 12px;
-    }
-
-    // Types
     &.elevated {
         background-color: $surface-container;
-        box-shadow: 0 1px 3px $shadow;
-
-        .m3-button-label {
+        box-shadow: $elevation-1;
+        label {
             color: $primary;
         }
-
         &:hover {
-            background-color: $surface-container-high;
+            background-color: mix($surface-container, $primary, $weight: 92%, $method: hsl);
+            box-shadow: $elevation-4;
+        }
+        &:focus-visible,
+        &:active {
+            background-color: mix($surface-container, $primary, $weight: 90%, $method: hsl);
         }
     }
+
     &.filled {
         background-color: $primary;
-
-        .m3-button-label {
+        label {
             color: $on-primary;
         }
-
         &:hover {
-            background-color: mix($primary, #ffffff, 8%);
+            background-color: mix($primary, $on-primary, $weight: 92%, $method: hsl);
+        }
+        &:focus-visible,
+        &:active {
+            background-color: mix($primary, $on-primary, $weight: 90%, $method: hsl);
         }
     }
+
     &.tonal {
         background-color: $secondary-container;
-
-        .m3-button-label {
+        label {
             color: $on-secondary-container;
         }
-
         &:hover {
-            background-color: mix($secondary-container, #ffffff, 6%);
+            background-color: mix($secondary-container, $on-secondary-container, $weight: 92%, $method: hsl);
+        }
+        &:focus-visible,
+        &:active {
+            background-color: mix($secondary-container, $on-secondary-container, $weight: 90%, $method: hsl);
         }
     }
-    &.outlined {
-        background-color: transparent;
-        box-shadow: inset 0 0 0 1px $outline-variant;
 
-        .m3-button-label {
+    &.outlined {
+        box-shadow: 0px 0px 1px $outline-variant;
+        background-color: transparent;
+        label {
             color: $on-surface-variant;
         }
-
         &:hover {
-            background-color: rgba(255, 255, 255, 0.06);
+            background-color: rgba($on-surface-variant, 0.08);
+        }
+        &:focus-visible,
+        &:active {
+            background-color: rgba($on-surface-variant, 0.1);
         }
     }
+
     &.text {
         background-color: transparent;
-
-        .m3-button-label {
+        label {
             color: $primary;
         }
-
         &:hover {
-            background-color: rgba(255, 255, 255, 0.06);
+            background-color: rgba($primary, 0.08);
         }
+        &:focus-visible,
+        &:active {
+            background-color: rgba($primary, 0.1);
+        }
+    }
+
+    &.xs {
+        min-height: 32px;
+        padding: 0px 12px;
+        .m3-button-icon {
+            font-size: 20px;
+        }
+        &.square {
+            border-radius: 12px;
+        }
+        &:active {
+            border-radius: 8px;
+        }
+        &.icon-only {
+            padding: 0px 6px;
+        }
+    }
+
+    &.s {
+        min-height: 40px;
+        padding: 0px 16px;
+        .m3-button-icon {
+            font-size: 20px;
+        }
+        .m3-button-label {
+            font-size: 10pt;
+        }
+        &.square {
+            border-radius: 12px;
+        }
+        &:active {
+            border-radius: 8px;
+        }
+        &.icon-only {
+            padding: 0px 10px;
+        }
+    }
+
+    &.m {
+        min-height: 56px;
+        padding: 0px 24px;
+        .m3-button-icon {
+            font-size: 24px;
+        }
+        .m3-button-label {
+            font-size: 12pt;
+        }
+        &.square {
+            border-radius: 16px;
+        }
+        &:active {
+            border-radius: 12px;
+        }
+        &.icon-only {
+            padding: 0px 16px;
+        }
+    }
+
+    &.l {
+        min-height: 96px;
+        padding: 0px 48px;
+        .m3-button-icon {
+            font-size: 32px;
+        }
+        .m3-button-label {
+            font-size: 16pt;
+            font-weight: 400;
+        }
+        &.square {
+            border-radius: 28px;
+        }
+        &:active {
+            border-radius: 12px;
+        }
+        &.icon-only {
+            padding: 0px 32px;
+        }
+    }
+
+    &.xl {
+        min-height: 136px;
+        padding: 0px 64px;
+        .m3-button-icon {
+            font-size: 40px;
+        }
+        .m3-button-label {
+            font-size: 24pt;
+            font-weight: 400;
+        }
+        &.square {
+            border-radius: 28px;
+        }
+        &:active {
+            border-radius: 16px;
+        }
+        &.icon-only {
+            padding: 0px 48px;
+        }
+    }
+
+    &.round {
+        border-radius: 50rem;
     }
 }
 
-// Connected Button Groups
 .connected-button-group {
     .m3-button {
-        border-radius: 8px;
-        min-width: 24px;
-    }
-
-    .m3-button:first-child {
-        border-top-left-radius: 9999px;
-        border-bottom-left-radius: 9999px;
-    }
-
-    .m3-button:last-child {
-        border-top-right-radius: 9999px;
-        border-bottom-right-radius: 9999px;
-    }
-
-    .m3-button.active {
-        border-radius: 9999px;
-        background-color: $primary;
-
-        .m3-button-label {
-            color: $on-primary;
+        transition: 200ms;
+        &.xs {
+            border-radius: 8px;
+            min-width: 24px;
+        }
+        &:first-child {
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+        }
+        &:last-child {
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+        &.active {
+            border-radius: 50rem;
+            background-color: $primary;
+            .m3-button-icon {
+                font-variation-settings: "FILL" 1;
+            }
+            label {
+                color: $on-primary;
+                font-weight: 450;
+            }
         }
     }
 }
 
-// --------------------------------------------------------------- slider
+switch {
+    background-color: $surface-container-highest;
+    box-shadow: inset 0px 0px 0px 2px $outline;
+    min-width: 52px;
+    border-radius: 2rem;
+    outline-offset: 2px;
+    padding: 0px;
+    slider {
+        min-width: 16px;
+        min-height: 16px;
+        margin: 8px;
+        margin-right: 2px;
+        background-color: $outline;
+        box-shadow: none;
+        border-radius: 50rem;
+    }
+    &:checked {
+        box-shadow: none;
+        background-color: $primary;
+        min-width: 52px;
+        slider {
+            min-width: 24px;
+            min-height: 24px;
+            margin: 4px;
+            margin-left: -2px;
+            background-color: $on-primary;
+        }
+    }
+    &:active {
+        slider {
+            min-width: 26px;
+            min-height: 26px;
+            margin: 3px;
+            margin-right: -3px;
+        }
+        &:checked slider {
+            margin-right: 3px;
+            margin-left: -3px;
+        }
+    }
+    &:hover {
+        &:not(:checked) {
+            background-color: mix($surface-container-highest, $on-surface, $weight: 90%, $method: hsl);
+        }
+        slider {
+            outline: 10px solid rgba($outline, 0.2);
+        }
+        &:checked slider {
+            outline-width: 7px;
+        }
+        &:active slider {
+            outline-width: 5px;
+        }
+    }
+}
 
 .m3-slider {
-    padding: 10px 16px;
-    border-radius: 18px;
     background-color: $surface-container;
-
-    .m3-slider-icon {
+    border-radius: 24px;
+    padding: 10px 16px;
+    .m3-icon {
+        font-family: "Material Symbols Outlined", "Material Icons Outlined";
+        font-size: 1.5rem;
         color: $on-surface;
-        margin-right: 10px;
+        margin-right: 0px;
     }
-
     scale {
-        padding: 0;
-
+        padding: 0px;
         trough {
             background-color: $secondary-container;
-            border-radius: 6px;
+            border-radius: 8px;
+            highlight {
+                background-color: $primary;
+                min-height: 16px;
+                border-radius: 0px;
+            }
+            slider {
+                min-height: 24px;
+                min-width: 4px;
+                padding: 0px;
+                margin: -16px 0px;
+                outline: 6px solid $surface-container;
+                outline-offset: 0px;
+                border-radius: 20px;
+                background-color: $primary;
+                transition: 100ms;
+            }
         }
-
-        highlight {
-            background-color: $primary;
-            border-radius: 6px;
-        }
-
-        slider {
-            min-width: 6px;
-            min-height: 18px;
-            margin: -5px 0;
-            border-radius: 9999px;
-            background-color: $primary;
-        }
-
         value {
-            color: $on-surface;
+            margin-top: -36px;
+            background-color: $surface-container-high;
+            border-radius: 20px;
+            padding: 0.2rem 1rem;
+            opacity: 0;
+        }
+        &:active {
+            slider {
+                outline-width: 4px;
+                min-width: 2px;
+            }
+            value {
+                opacity: 1;
+            }
         }
     }
 }
-
-// -------------------------------------------------------- navigation rail
 
 .navigation-rail {
     padding: 10px;
-
     .rail-button {
-        padding: 4px 0;
-        border-radius: 8px;
         background-color: transparent;
-
+        padding: 2px 0px;
+        border-radius: 8px;
         .m3-button-icon {
-            padding: 4px 18px;
-            border-radius: 9999px;
+            border-radius: 20rem;
+            padding: 2px 16px;
+            margin: 0px;
+            margin-bottom: -5px;
             color: $on-surface-variant;
+            font-size: 16pt;
         }
-
         .m3-button-label {
             color: $on-surface-variant;
+            font-size: 8pt;
         }
-
-        &:hover .m3-button-icon {
-            background-color: rgba(255, 255, 255, 0.06);
+        &:hover,
+        &:focus-visible {
+            background-color: transparent;
+            outline: none;
+            .m3-button-icon {
+                background-color: rgba($secondary-container, 0.25);
+            }
         }
+        &.selected {
+            .m3-button-icon {
+                background-color: $secondary-container;
+                color: $on-secondary-container;
+                font-variation-settings: "FILL" 1;
+            }
+        }
+    }
+    .reload-button {
+        min-height: 60px;
+    }
+}
 
-        &.selected .m3-button-icon {
+spinbutton {
+    background-color: transparent;
+    border-radius: 20px;
+    text {
+        border-radius: 20px 8px 8px 20px;
+        background-color: $surface-container-highest;
+    }
+    button {
+        border: none;
+        background-color: $surface-container-highest;
+        margin-left: 2px;
+        border-radius: 8px;
+        &:last-child {
+            border-radius: 8px 20px 20px 8px;
+        }
+    }
+    outline-color: $tertiary;
+    outline-offset: 2px;
+}
+
+popover {
+    contents {
+        background-color: $surface-container;
+        border: 1px solid rgba($outline-variant, 0.5);
+        padding: 0px;
+        border-radius: 15px;
+        box {
+            background-color: transparent;
+            & > label {
+                color: $on-surface-variant;
+            }
+            modelbutton {
+                background-color: transparent;
+                border-radius: 10px;
+                min-width: 100px;
+                transition: 100ms;
+                &:hover {
+                    background-color: $surface-container-highest;
+                }
+            }
+        }
+        label {
+            font-weight: 400;
+            color: $on-surface;
+        }
+    }
+    arrow {
+        background-color: transparent;
+    }
+}
+
+tooltip {
+    border-radius: 15px;
+    background-color: $surface-container-high;
+    border: 1px solid rgba($outline-variant, 0.5);
+    padding: 0.6rem 1rem;
+}
+
+checkbutton {
+    check,
+    radio {
+        border-radius: 4px;
+        background-color: transparent;
+        box-shadow: inset 0px 0px 0px 2px rgba($on-surface-variant, 0.5);
+        margin-right: 0.5rem;
+        &:hover {
+            background-color: $surface-container-highest;
+        }
+        &:checked {
+            background-color: $primary;
+            border-color: $primary;
+            color: $on-primary;
+            box-shadow: none;
+        }
+    }
+    radio {
+        border-radius: 100%;
+    }
+}
+
+scrollbar {
+    background-color: transparent;
+    slider {
+        background-color: $tertiary;
+        border-radius: 10px;
+        margin: 2px;
+    }
+}
+
+.fontchooser {
+    background-color: $background;
+    padding: 5px;
+    entry {
+        background-color: $surface-container-high;
+        border-radius: 10px;
+    }
+    .suggested-action {
+        background-color: $primary;
+        color: $on-primary;
+        border-radius: 20px;
+    }
+    scale {
+        padding: 0px;
+        trough {
             background-color: $secondary-container;
-            color: $on-secondary-container;
+            border-radius: 8px;
+            highlight {
+                background-color: $primary;
+                min-height: 16px;
+                border-radius: 20px;
+            }
+        }
+        value {
+            margin-top: -36px;
+            background-color: $surface-container-high;
+            border-radius: 20px;
+            padding: 0.2rem 1rem;
+            opacity: 0;
+        }
+        &:active {
+            slider {
+                outline-width: 4px;
+                min-width: 2px;
+            }
+            value {
+                opacity: 1;
+            }
+        }
+        mark {
+            background-color: $surface-container-highest;
         }
     }
 }

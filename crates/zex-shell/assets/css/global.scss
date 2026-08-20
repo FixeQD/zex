@@ -1,0 +1,22 @@
+$secondary: #cdd5e9 !default;
+$surface-container-highest: #303036 !default;
+
+* {
+  outline: unset;
+  border: unset;
+  background: unset;
+  box-shadow: unset;
+  color: unset;
+  border-radius: unset;
+}
+*:focus {
+  outline-color: $secondary;
+}
+.popup-close,
+.popup-close button,
+.popup-close .background {
+  background-color: transparent;
+}
+separator {
+  background-color: $surface-container-highest;
+}

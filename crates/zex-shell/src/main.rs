@@ -19,6 +19,16 @@ fn main() -> anyhow::Result<()> {
     gtk4::init().context("initializing gtk")?;
     tracing::info!("zex shell starting");
 
+    let _global_theme_provider = {
+        let settings = zex_core::SettingsStore::load()
+            .map(|s| s.get().clone())
+            .unwrap_or_default();
+        let scss = zex_shell::shared::theme_scss_from_settings(&settings);
+        zex_shell::shared::set_global_theme(scss);
+        zex_shell::shared::apply_system_theming(&settings);
+        zex_shell::shared::install_global_css()
+    };
+
     let actions = ActionHandles::new();
 
     let notification_store = zex_core::SettingsStore::load().context("loading settings")?;

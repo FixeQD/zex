@@ -11,12 +11,99 @@ use gtk4::gio;
 use gtk4::glib;
 use gtk4::prelude::*;
 use relm4::Sender;
+use std::path::Path;
+use std::sync::{Mutex, OnceLock};
 use zex_core::SettingsStore;
 use zex_core::store::Subscription;
-use zex_core::theme::css;
+use zex_core::theme::{Palette, css};
+
+static THEME_CACHE: OnceLock<Mutex<String>> = OnceLock::new();
+
+fn block_on<F: std::future::Future>(future: F) -> anyhow::Result<F::Output> {
+    let runtime = tokio::runtime::Runtime::new().context("failed to start theme runtime")?;
+    Ok(runtime.block_on(future))
+}
+
+fn palette_for_settings(settings: &zex_core::Settings) -> (Palette, bool) {
+    let wc = &settings.appearance.wallcolors;
+    let dark = wc.dark_mode;
+    let scheme = if zex_core::theme::matugen::SCHEMES.contains(&wc.color_scheme.as_str()) {
+        wc.color_scheme.as_str()
+    } else {
+        "tonal_spot"
+    };
+    let path = if wc.wallpaper_path.is_empty() {
+        None
+    } else {
+        Some(Path::new(wc.wallpaper_path.as_str()))
+    };
+    let palette = match path.filter(|p| p.is_file()) {
+        Some(p) => match block_on(zex_core::theme::matugen::generate(p, scheme, dark)) {
+            Ok(Ok(pal)) => pal,
+            Ok(Err(e)) | Err(e) => {
+                tracing::warn!("palette generation failed, using fallback: {e:#}");
+                Palette::default()
+            }
+        },
+        None => Palette::default(),
+    };
+    (palette, dark)
+}
+
+pub fn theme_scss_from_settings(settings: &zex_core::Settings) -> String {
+    let (palette, dark) = palette_for_settings(settings);
+    match css::theme_scss(&palette, dark) {
+        Ok(s) => s,
+        Err(e) => {
+            tracing::warn!("theme_scss failed: {e:#}");
+            css::theme_scss(&Palette::default(), true).unwrap_or_default()
+        }
+    }
+}
+
+pub fn set_global_theme(scss: String) {
+    let cache = THEME_CACHE.get_or_init(|| Mutex::new(String::new()));
+    *cache.lock().expect("theme cache poisoned") = scss;
+}
+
+pub fn global_theme() -> Option<String> {
+    THEME_CACHE
+        .get()
+        .map(|m| m.lock().expect("theme cache poisoned").clone())
+}
+
+pub fn current_theme_scss() -> String {
+    if let Some(cached) = global_theme() {
+        if !cached.is_empty() {
+            return cached;
+        }
+    }
+    let settings = SettingsStore::load()
+        .map(|s| s.get().clone())
+        .unwrap_or_default();
+    theme_scss_from_settings(&settings)
+}
+
+fn with_theme(scss: &str) -> String {
+    let theme = current_theme_scss();
+    if theme.is_empty() {
+        scss.to_string()
+    } else {
+        format!("{theme}\n{scss}")
+    }
+}
+
+use anyhow::Context;
 
 /// Compile SCSS with grass and load it into `provider`
 pub fn install_css(provider: &gtk4::CssProvider, scss: &str) -> anyhow::Result<()> {
+    let full = with_theme(scss);
+    let css = css::compile(&full)?;
+    css::load(provider, &css);
+    Ok(())
+}
+
+pub fn install_css_without_theme(provider: &gtk4::CssProvider, scss: &str) -> anyhow::Result<()> {
     let css = css::compile(scss)?;
     css::load(provider, &css);
     Ok(())
@@ -36,6 +123,36 @@ pub fn install_css_provider(scss: &str) -> gtk4::CssProvider {
         );
     }
     provider
+}
+
+pub fn install_global_css() -> gtk4::CssProvider {
+    let scss = include_str!("../assets/css/global.scss");
+    let provider = gtk4::CssProvider::new();
+    let full = with_theme(scss);
+    match css::compile(&full) {
+        Ok(css) => css::load(&provider, &css),
+        Err(e) => tracing::warn!("global css failed: {e:#}"),
+    }
+    if let Some(display) = gdk::Display::default() {
+        gtk4::style_context_add_provider_for_display(
+            &display,
+            &provider,
+            gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
+        );
+    }
+    provider
+}
+
+pub fn apply_system_theming(settings: &zex_core::Settings) {
+    let dark = settings.appearance.wallcolors.dark_mode;
+    css::apply_system_color_scheme(dark);
+    let theme = if dark { "adw-gtk3-dark" } else { "adw-gtk3" };
+    let status = std::process::Command::new("gsettings")
+        .args(["set", "org.gnome.desktop.interface", "gtk-theme", theme])
+        .status();
+    if let Err(e) = status {
+        tracing::warn!("could not set gtk-theme: {e}");
+    }
 }
 
 /// Snapshot of the connected monitors in index order

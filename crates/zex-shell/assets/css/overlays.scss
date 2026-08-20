@@ -1,17 +1,17 @@
-// Material 3 overlay surfaces
-$surface: #131316;
-$surface-container: #1f1f24;
-$surface-container-high: #26262c;
-$surface-container-highest: #303036;
-$surface-dim: #101014;
-$on-surface: #e3e2e6;
-$on-surface-variant: #c7c6ce;
-$on-background: #e3e2e6;
-$primary: #d3e3fd;
-$primary-container: #354a63;
-$on-primary: #0a1d2f;
-$on-primary-container: #d3e3fd;
-$outline-variant: #47474e;
+$surface: #131316 !default;
+$surface-container: #1f1f24 !default;
+$surface-container-high: #26262c !default;
+$surface-container-highest: #303036 !default;
+$surface-dim: #101014 !default;
+$on-surface: #e3e2e6 !default;
+$on-surface-variant: #c7c6ce !default;
+$on-background: #e3e2e6 !default;
+$primary: #d3e3fd !default;
+$primary-container: #354a63 !default;
+$on-primary: #0a1d2f !default;
+$on-primary-container: #d3e3fd !default;
+$outline-variant: #47474e !default;
+$background: #131316 !default;
 
 .popup-close { background: transparent; }
 

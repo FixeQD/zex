@@ -1,6 +1,5 @@
-// Zex wallpaper background layer
-
-$surface: #131316;
+$surface: #131316 !default;
+$background: #131316 !default;
 
 .wallpaper {
   background-color: $surface;

@@ -1,14 +1,17 @@
 // Settings window stylesheet
 
-// M3 token fallbacks (mirror m3.scss; matugen overrides arrive via @zex-*)
-$surface: #131316;
-$surface-container: #1f1f24;
-$surface-container-high: #26262c;
-$surface-container-highest: #303036;
-$on-surface: #e3e2e6;
-$on-surface-variant: #c7c6ce;
-$primary: #d3e3fd;
-$outline-variant: #47474e;
+$surface: #131316 !default;
+$surface-container: #1f1f24 !default;
+$surface-container-high: #26262c !default;
+$surface-container-highest: #303036 !default;
+$on-surface: #e3e2e6 !default;
+$on-surface-variant: #c7c6ce !default;
+$primary: #d3e3fd !default;
+$outline-variant: #47474e !default;
+$background: #131316 !default;
+$on-background: #e3e2e6 !default;
+$secondary: #cdd5e9 !default;
+$outline: #87878c !default;
 
 .settings-window {
   padding: 0;

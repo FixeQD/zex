@@ -2,7 +2,7 @@
 
 use gtk4::prelude::*;
 use std::rc::Rc;
-use zex_services::{iwd, network};
+use zex_services::{iwd, networkmanager};
 
 use super::TabContext;
 use crate::settings::widgets::{category, separator, settings_row};
@@ -197,8 +197,8 @@ pub fn build(ctx: &TabContext) -> gtk4::Box {
     let nm_refresh = gtk4::Button::with_label("Probe NetworkManager");
     nm_refresh.connect_clicked(move |_| {
         glib::MainContext::default().spawn_local(async move {
-            if let Ok(conn) = network::session().await {
-                match network::snapshot(&conn).await {
+            if let Ok(conn) = networkmanager::session().await {
+                match networkmanager::snapshot(&conn).await {
                     Ok(snapshot) => tracing::info!(
                         "NetworkManager: wifi={} aps={} ethernet={}",
                         snapshot.wifi_enabled,

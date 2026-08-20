@@ -196,7 +196,7 @@ impl Settings {
     pub(crate) fn refresh_theme_provider(&mut self) {
         let settings = self.store.borrow().get().clone();
         let css = preview_css(&self.previews, &settings);
-        if let Err(err) = crate::shared::install_css(&self._theme_provider, &css) {
+        if let Err(err) = crate::shared::install_css_without_theme(&self._theme_provider, &css) {
             tracing::warn!("preview css failed: {err:#}");
         }
     }

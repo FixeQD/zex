@@ -1,459 +1,475 @@
-// Bar stylesheet
+$primary: #d3e3fd !default;
+$on-primary: #123258 !default;
+$primary-container: #354a63 !default;
+$on-primary-container: #d3e3fd !default;
+$secondary: #cdd5e9 !default;
+$on-secondary: #2a2f3f !default;
+$secondary-container: #262c3a !default;
+$on-secondary-container: #d9e2f8 !default;
+$tertiary: #e0bcc6 !default;
+$on-tertiary: #45263a !default;
+$tertiary-container: #5d3a4f !default;
+$on-tertiary-container: #ffd7f0 !default;
+$error: #ffb4ab !default;
+$on-error: #690005 !default;
+$error-container: #93000a !default;
+$on-error-container: #ffb4ab !default;
+$background: #131316 !default;
+$on-background: #e3e2e6 !default;
+$surface: #131316 !default;
+$on-surface: #e3e2e6 !default;
+$surface-variant: #47474e !default;
+$on-surface-variant: #c7c6ce !default;
+$outline: #87878c !default;
+$outline-variant: #47474e !default;
+$shadow: rgba(0, 0, 0, 0.35) !default;
+$scrim: rgba(0, 0, 0, 0.4) !default;
+$surface-dim: #131316 !default;
+$surface-bright: #3a3a41 !default;
+$surface-container-lowest: #0e0e11 !default;
+$surface-container-low: #1b1b1f !default;
+$surface-container: #1f1f24 !default;
+$surface-container-high: #26262c !default;
+$surface-container-highest: #303036 !default;
+$radius: 16px !default;
+$gap: 2px !default;
 
-// M3 tokens (fallback dark palette)
-$surface: #131316;
-$surface-container: #1f1f24;
-$surface-container-high: #26262c;
-$surface-bright: #3a3a41;
-$on-surface: #e3e2e6;
-$on-surface-variant: #c7c6ce;
-$outline: #87878c;
-$primary: #d3e3fd;
-$on-primary: #123258;
-$shadow: rgba(0, 0, 0, 0.35);
-$radius: 16px;
-$gap: 2px;
+@keyframes rotation {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(359deg); }
+}
 
 .bar {
-    color: $on-surface;
-    background-color: transparent;
-}
+    &.bar-background {
+        background: $surface;
+    }
+    color: $on-background;
 
-// ---------------------------------------------------------------- geometry
+    &.floating {
+        border-radius: 50rem;
+        &.bar-background {
+            &:not(.separated) {
+                box-shadow: 0px 0px 0px 1px inset rgba($outline-variant, 0.5);
+            }
+            &.separated {
+                .left-widgets,
+                .center-widgets,
+                .right-widgets {
+                    &:not(.empty) {
+                        box-shadow: 0px 0px 0px 1px inset rgba($outline-variant, 0.5);
+                    }
+                }
+            }
+        }
+    }
 
-.bar-widgets {
-    min-width: 0;
-    min-height: 0;
-}
+    &.extrapadding {
+        &:not(.vertical) {
+            .left-widgets { padding-left: 1rem; }
+            .right-widgets { padding-right: 1rem; }
+        }
+        &.vertical {
+            .left-widgets { padding-top: 1rem; }
+            .right-widgets { padding-bottom: 1rem; }
+        }
+    }
 
-.bar.horizontal .bar-widgets {
-    padding: $gap 4px;
-}
+    &.separated {
+        background: transparent;
+        &.bar-background {
+            .left-widgets,
+            .center-widgets,
+            .right-widgets {
+                &:not(.empty) { background: $background; }
+            }
+        }
+        &.top {
+            .left-widgets { border-bottom-right-radius: 20px; }
+            .center-widgets { border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
+            .right-widgets { border-bottom-left-radius: 20px; }
+        }
+        &.bottom {
+            .left-widgets { border-top-right-radius: 20px; }
+            .center-widgets { border-top-left-radius: 20px; border-top-right-radius: 20px; }
+            .right-widgets { border-top-left-radius: 20px; }
+        }
+        &.floating {
+            .left-widgets,
+            .center-widgets,
+            .right-widgets { border-radius: 50rem; }
+        }
+    }
 
-.bar.vertical .bar-widgets {
-    padding: 4px $gap;
-}
+    &.round {
+        &.top {
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            .left-widgets { border-bottom-left-radius: 20px; }
+            .right-widgets { border-bottom-right-radius: 20px; }
+        }
+        &.bottom {
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            .left-widgets { border-top-left-radius: 20px; }
+            .right-widgets { border-top-right-radius: 20px; }
+        }
+    }
 
-.bar.hug {
-    padding: 3px;
-}
+    &.compact {
+        .left-widgets, .center-widgets, .right-widgets { padding: 2px; }
+    }
+    &.compact-plus {
+        .left-widgets, .center-widgets, .right-widgets { padding: 2px 2px; }
+    }
+    &.ultracompact {
+        .left-widgets, .center-widgets, .right-widgets { padding: 0px 0px; }
+    }
 
-.bar.hug.extrapadding {
-    padding: 3px 6px;
-}
-
-.bar.hug.round {
-    padding: 3px 6px;
-}
-
-.bar.floating {
-    background-color: $surface;
-    border-radius: $radius;
-    border: 1px solid $outline;
-    box-shadow: 0 4px 12px $shadow;
-}
-
-.bar.bar-background {
-    background-color: $surface;
-}
-
-.bar.vertical.floating {
-    border-radius: $radius;
-}
-
-// -------------------------------------------------------- widget segments
-
-.bar .left-widgets,
-.bar .center-widgets,
-.bar .right-widgets {
-    background-color: transparent;
-}
-
-.bar.module-backgrounds .left-widgets,
-.bar.module-backgrounds .center-widgets,
-.bar.module-backgrounds .right-widgets {
-    background-color: $surface-container;
-    border-radius: 12px;
-    padding: 1px $gap;
-}
-
-.bar.module-backgrounds .left-widgets.empty,
-.bar.module-backgrounds .center-widgets.empty,
-.bar.module-backgrounds .right-widgets.empty {
-    background-color: transparent;
-    padding: 0;
-}
-
-.bar.separated .left-widgets {
-    margin-right: $gap;
-}
-
-.bar.separated .right-widgets {
-    margin-left: $gap;
-}
-
-.bar.separated .center-widgets {
-    margin: 0 $gap;
-}
-
-// ------------------------------------------------------------------ clock
-
-.clock .time {
-    font-size: 16px;
-    font-weight: 600;
-    color: $on-surface;
-}
-
-.clock .date,
-.clock .month {
-    font-size: 11px;
-    color: $on-surface-variant;
-}
-
-.clock .separator {
-    font-size: 14px;
-    color: $primary;
-    margin: 0 2px;
-}
-
-.clock .date-separator {
-    background-color: $outline;
-    min-height: 1px;
-    min-width: 1px;
-    margin: 2px 8px;
-}
-
-.bar.compact .clock .time {
-    font-size: 14px;
-}
-
-.bar.compact-plus .clock .time {
-    font-size: 13px;
-}
-
-.bar.ultracompact .clock .time {
-    font-size: 12px;
-}
-
-// ----------------------------------------------------------- launcher icon
-
-.launcher-button {
-    background: transparent;
-    border: none;
-    padding: 6px;
-    border-radius: 50%;
-}
-
-.launcher-button:hover {
-    background-color: $surface-container-high;
-}
-
-.launcher-button:active {
-    background-color: $surface-bright;
-}
-
-// ------------------------------------------------------------ workspaces
-
-.workspaces {
-    padding: 2px 1px;
-    border-radius: $radius;
-}
-
-.workspace {
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    padding: 2px;
-    min-width: 30px;
-    min-height: 30px;
-}
-
-.workspace:hover {
-    background-color: $surface-container-high;
-}
-
-.workspace.active {
-    background-color: $primary;
-}
-
-.workspace.active .workspace-btn-label {
-    color: $on-primary;
-}
-
-.workspace.empty {
-    opacity: 0.45;
-}
-
-.workspace-btn-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: $on-surface-variant;
-}
-
-.workspaces.dots .workspace-btn-label {
-    opacity: 0;
-}
-
-.workspace .workspace-btn-label {
-    transition: color 100ms ease;
-}
-
-// ----------------------------------------------------------- window info
-
-.winfo {
-    padding: 2px 6px;
-    border-radius: 10px;
-}
-
-.winfo.vertical {
-    padding: 6px 2px;
-}
-
-.winfo-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: $on-surface;
-}
-
-.winfo-app-id {
-    font-size: 10px;
-    color: $on-surface-variant;
-}
-
-// ----------------------------------------------------------------- media
-
-.media {
-    padding: 2px 4px;
-    border-radius: 10px;
-}
-
-.media.centered {
-    min-width: 150px;
-}
-
-.media-row {
-    padding: 2px 4px;
-    border-radius: 8px;
-}
-
-.media-row:hover {
-    background-color: $surface-container-high;
-}
-
-.media-cover-box {
-    border-radius: 50%;
-    overflow: hidden;
-    transition: opacity 150ms ease;
-}
-
-.media-cover-box.playing {
-    animation: media-spin 6s linear infinite;
-}
-
-@keyframes media-spin {
-    to {
-        transform: rotate(1turn);
+    .system-info-tray:hover,
+    .recording-indicator:hover {
+        background: $primary-container;
+        color: $on-primary-container;
     }
 }
 
-.media-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: $on-surface;
+.left-widgets,
+.center-widgets,
+.right-widgets {
+    padding: 5px;
+    & > box,
+    & > button { border-radius: 15px; }
 }
 
-.media-artist {
-    font-size: 10px;
-    color: $on-surface-variant;
+.module-backgrounds {
+    .left-widgets,
+    .center-widgets,
+    .right-widgets {
+        & > box,
+        & > button {
+            border-radius: 5px;
+            background: $surface-container;
+            &:first-child {
+                border-top-left-radius: 20px;
+                border-bottom-left-radius: 20px;
+            }
+            &:last-child {
+                border-top-right-radius: 20px;
+                border-bottom-right-radius: 20px;
+            }
+            button { background: transparent; }
+        }
+    }
 }
 
-.media-overlay {
+.center-widgets { margin: 0px 1rem; }
+
+.winfo {
+    padding: 0px 15px 0px 10px;
+    .title { font-weight: 500; margin-bottom: -3px; }
+    .app_id { font-weight: 400; font-size: 8pt; opacity: 0.8; }
+}
+
+.workspaces {
     padding: 2px;
-    border-radius: 8px;
-    color: $on-surface;
+    .workspace {
+        padding: 0;
+        font-weight: 400;
+        font-size: 10pt;
+        color: $on-background;
+        transition: 300ms cubic-bezier(0.19, 1, 0.22, 1);
+        min-width: 25px;
+        min-height: 25px;
+        border-radius: 20px;
+        background: transparent;
+        &:hover { background: $surface-container-highest; }
+        &.empty { opacity: 0.5; }
+        &.active {
+            background: $primary;
+            color: $on-primary;
+            padding: 0px 10px;
+            font-weight: 700;
+            border-radius: 20px;
+            opacity: 1;
+        }
+    }
+    &.windows {
+        .workspace {
+            color: $on-background;
+            padding: 0px 10px;
+            &:hover { background: $surface-container-highest; }
+            &.active {
+                background: $primary;
+                color: $on-primary;
+                border-radius: 20px;
+            }
+        }
+    }
+    &.dots {
+        padding: 0px 15px;
+        .workspace {
+            font-size: 0pt;
+            padding: 0px;
+            min-width: 6px;
+            min-height: 6px;
+            color: $on-background;
+            background: rgba($on-background, 0.5);
+            border-radius: 2rem;
+            &.active {
+                min-height: 10px;
+                min-width: 20px;
+                background: $on-background;
+            }
+        }
+    }
 }
 
-.media-overlay.is-paused {
-    color: $primary;
+.clock {
+    padding: 0px 10px;
+    min-height: 0px;
+    font-feature-settings: "tnum";
+    .time { font-weight: 500; margin-bottom: -2px; }
+    .date, .month { font-weight: 400; font-size: 8pt; opacity: 0.8; }
 }
 
-// ------------------------------------------------------------------ tasks
-
-.tasks {
-    padding: 0 5px;
+.media {
+    padding: 0px 5px;
+    padding-right: 10px;
+    min-height: 0px;
+    .icon_container {
+        border-radius: 20px;
+        min-width: 16px;
+        margin: 0px;
+    }
+    box:not(.is-paused) .icon_container { animation: rotation 10s infinite linear; }
+    .overlay-bg {
+        margin: 0px;
+        border-radius: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: 100ms;
+    }
+    .overlay-icon { opacity: 0; transition: 100ms; }
+    .title { font-weight: 500; margin-bottom: -3px; }
+    .artist { font-weight: 400; font-size: 8pt; opacity: 0.8; }
+    .is-paused {
+        .overlay-bg, .overlay-icon { opacity: 0.8; }
+    }
+    &:hover {
+        .overlay-bg, .overlay-icon { opacity: 1; }
+        &:active .overlay-icon { transform: scale(1.2); }
+    }
 }
-
-.tasks .app-button {
-    padding: 3px 6px;
-    border-radius: 50rem;
-    background: transparent;
-    transition: 200ms cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.tasks .app-button:hover {
-    background-color: $surface-container-high;
-}
-
-.tasks .app-button .app-indicator {
-    background-color: $on-surface-variant;
-    border-radius: 50rem;
-    transition: 200ms cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.tasks .app-button.active-app .app-indicator {
-    background-color: $primary;
-}
-
-.tasks .app-button .app-indicator.top {
-    margin-top: -5px;
-    margin-bottom: 8px;
-    min-width: 5px;
-    min-height: 2px;
-}
-
-.tasks .app-button .app-indicator.bottom {
-    margin-top: 8px;
-    margin-bottom: -5px;
-    min-width: 5px;
-    min-height: 2px;
-}
-
-.tasks .app-button .app-indicator.left {
-    margin-left: -5px;
-    margin-right: 8px;
-    min-height: 5px;
-    min-width: 2px;
-}
-
-.tasks .app-button .app-indicator.right {
-    margin-right: -5px;
-    margin-left: 8px;
-    min-height: 5px;
-    min-width: 2px;
-}
-
-.tasks .dock-separator {
-    background-color: $outline;
-    min-width: 1px;
-    min-height: 1px;
-    margin: 2px 4px;
-}
-
-// ------------------------------------------------------------- dock menus
-
-.dock-menu {
-    background-color: $surface-container;
-    border-radius: 12px;
-    padding: 4px;
-}
-
-.dock-menu-box {
-    padding: 4px;
-}
-
-.dock-menu-button {
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 10px;
-    text-align: start;
-    color: $on-surface;
-}
-
-.dock-menu-button:hover {
-    background-color: $surface-container-high;
-}
-
-.dock-menu-label {
-    padding: 4px 10px;
-    color: $on-surface-variant;
-    font-weight: 600;
-}
-
-// ------------------------------------------------------------------- tray
 
 .tray {
+    padding: 0px;
     min-width: 12px;
+    .tray-item { padding: 0px; }
+    .tray-icon { margin: 0px; padding: 0px; }
 }
 
-.tray .tray-item {
-    padding: 0;
-    border: none;
-    background: transparent;
-    border-radius: 8px;
+#recording-indicator {
+    padding: 0px 10px;
+    font-weight: 400;
+    font-feature-settings: "tnum";
+    &.recording-active {
+        background: $error-container;
+        color: $on-error-container;
+    }
+    &.paused {
+        background: $tertiary-container;
+        color: $on-tertiary-container;
+    }
+    .recording-icon {
+        font-family: "Material Symbols Outlined", "Material Icons Outlined";
+        font-size: 12pt;
+        font-weight: 600;
+    }
+    * { background: transparent; }
 }
 
-.tray .tray-item:hover {
-    background-color: $surface-container-high;
+.compact-plus {
+    #recording-indicator { border-radius: 50rem; }
 }
 
-.tray .tray-icon {
-    margin: 0;
-    padding: 0;
+.battery-widget {
+    .battery-box {
+        border-radius: 20px;
+        background: rgba($on-surface, 0.6);
+        color: $surface;
+        font-weight: 700;
+        font-size: 8.5pt;
+        .battery-fill { background: $on-surface; }
+        .battery-status {
+            font-size: 10pt;
+            font-family: "Material Symbols Outlined", "Material Icons Outlined";
+        }
+    }
+    &.low {
+        .battery-box {
+            background: rgba($error, 0.7);
+            color: $on-error;
+            .battery-fill { background: $error; }
+        }
+    }
+    &.charging {
+        .battery-box {
+            background: rgba(lightgreen, 0.6);
+            color: $surface;
+            .battery-fill { background: lightgreen; }
+            .battery-status { font-variation-settings: "FILL" 1; }
+        }
+    }
 }
-
-// -------------------------------------------------------- system info tray
 
 .system-info-tray {
-    padding: 0 4px;
+    padding: 0px 10px;
+    .system-info-tray-container {
+        padding: 0px;
+        .icon {
+            font-family: "Material Symbols Outlined", "Material Icons Outlined";
+            font-size: 13.5pt;
+            font-weight: 500;
+        }
+    }
+    &:hover { background: $primary-container; color: $on-primary-container; }
+    transition: 200ms;
 }
 
-.system-info-tray .icon {
-    font-family: "Material Symbols Outlined", "Material Icons Outlined";
-    font-size: 14pt;
-    font-weight: 500;
+.launcher-button {
+    font-size: 12pt;
+    &:hover { background: $primary-container; color: $on-primary-container; }
+    padding: 0px 10px;
 }
 
-.system-info-tray .system-info-tray-container {
-    padding: 0;
-    background: transparent;
-    border: none;
-    border-radius: 12px;
+.tasks {
+    padding: 0px 5px;
+    .app-button {
+        padding: 3px 6px;
+        border-radius: 50rem;
+        background-color: transparent;
+        color: $on-surface;
+        transition: 200ms cubic-bezier(0.19, 1, 0.22, 1);
+        .app-indicator {
+            background-color: $on-surface;
+            border-radius: 50rem;
+            transition: 200ms cubic-bezier(0.19, 1, 0.22, 1);
+            transition-property: padding;
+            &.top { margin-top: -5px; margin-bottom: 8px; min-width: 5px; min-height: 2px; }
+            &.bottom { margin-top: 8px; margin-bottom: -5px; min-width: 5px; min-height: 2px; }
+            &.left { margin-left: -5px; margin-right: 8px; min-height: 5px; min-width: 2px; }
+            &.right { margin-right: -5px; margin-left: 8px; min-height: 5px; min-width: 2px; }
+        }
+        &:hover { background-color: $surface-container-highest; }
+        &.active-app {
+            .app-indicator {
+                background-color: $secondary;
+                &.top, &.bottom { padding: 0px 8px; }
+                &.left, &.right { padding: 8px 0px; }
+            }
+        }
+        .icon { background-color: transparent; }
+    }
 }
 
-.system-info-tray .system-info-tray-container:hover {
-    background-color: $surface-container-high;
-}
+.bar.hug { padding: 3px; }
+.bar.hug.extrapadding { padding: 3px 6px; }
+.bar.hug.round { padding: 3px 6px; }
 
-// ---------------------------------------------------------------- battery
-
-.battery-widget .battery-box {
-    border-radius: 50rem;
-    background-color: rgba($on-surface, 0.6);
-    color: $surface;
-    font-weight: 700;
-    font-size: 8.5pt;
-}
-
-.battery-widget .battery-fill {
-    background-color: $on-surface;
-    border-radius: 50rem;
-}
-
-.battery-widget .battery-status {
-    font-family: "Material Symbols Outlined", "Material Icons Outlined";
-    font-size: 10pt;
-}
-
-.battery-widget .battery-percent-label {
-    font-size: 8pt;
-    font-weight: 700;
-}
-
-.battery-widget.low .battery-box {
-    background-color: rgba($primary, 0.7);
-    color: $on-primary;
-}
-
-.battery-widget.low .battery-fill {
-    background-color: $primary;
-}
-
-.battery-widget.charging .battery-box {
-    background-color: rgba(144, 238, 144, 0.6);
-    color: $surface;
-}
-
-.battery-widget.charging .battery-fill {
-    background-color: lightgreen;
+.bar.vertical {
+    &.module-backgrounds {
+        .left-widgets, .center-widgets, .right-widgets {
+            & > box, & > button {
+                border-radius: 5px;
+                &:first-child { border-top-left-radius: 20px; border-top-right-radius: 20px; }
+                &:last-child { border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
+            }
+        }
+    }
+    .workspaces {
+        .workspace.active { padding: 10px 0px; }
+        &.windows .workspace { padding: 5px 0px; }
+        &.dots {
+            padding: 15px 0px;
+            .workspace {
+                font-size: 0pt;
+                min-width: 6px;
+                min-height: 6px;
+                &.active { min-height: 8px; min-width: 10px; }
+            }
+        }
+    }
+    .center-widgets { margin: 1rem 0px; }
+    .media { padding: 5px 0px; }
+    .winfo { padding: 8px 0px; }
+    .clock {
+        padding: 10px 0px;
+        .date { font-size: 8pt; margin-left: -5px; }
+        .month { font-size: 8pt; margin-right: -5px; }
+        .separator { padding: 0px; }
+        separator {
+            min-height: 2px;
+            transform: skewY(-20deg);
+            margin: 0px 5px;
+            background: rgba($on-surface, 0.3);
+        }
+    }
+    .tray { padding: 0px; }
+    #recording-indicator { padding: 5px 0px; }
+    .system-info-tray { padding: 10px 0px; }
+    .launcher-button { padding: 5px 0px; }
+    .tasks {
+        padding: 5px 0px;
+        .app-button { padding: 3px 5px; }
+    }
+    &.separated {
+        background: transparent;
+        &.left {
+            .left-widgets { border-bottom-right-radius: 20px; }
+            .center-widgets { border-top-right-radius: 20px; border-bottom-right-radius: 20px; }
+            .right-widgets { border-top-right-radius: 20px; }
+        }
+        &.right {
+            .left-widgets { border-bottom-left-radius: 20px; }
+            .center-widgets { border-top-left-radius: 20px; border-bottom-left-radius: 20px; }
+            .right-widgets { border-top-left-radius: 20px; }
+        }
+        &.floating {
+            .left-widgets, .center-widgets, .right-widgets { border-radius: 50rem; }
+        }
+    }
+    &.round {
+        &.left {
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+            .left-widgets { border-top-right-radius: 20px; }
+            .right-widgets { border-bottom-right-radius: 20px; }
+        }
+        &.right {
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+            .left-widgets { border-top-left-radius: 20px; }
+            .right-widgets { border-bottom-left-radius: 20px; }
+        }
+    }
+    &.compact {
+        .left-widgets, .center-widgets, .right-widgets { padding: 2px; }
+        .workspaces:not(.windows):not(.dots) {
+            padding: 0px;
+            .workspace { padding: 1px 0px; }
+        }
+    }
+    &.compact-plus {
+        .left-widgets, .center-widgets, .right-widgets { padding: 5px 2px; }
+        .workspaces:not(.dots) {
+            padding: 0px;
+            &:not(.windows) .workspace.active { padding: 0px 0px; }
+        }
+    }
+    &.ultracompact {
+        .left-widgets, .center-widgets, .right-widgets { padding: 5px 0px; }
+        .workspaces:not(.dots) {
+            padding: 0px;
+            &:not(.windows) .workspace.active { padding: 0px 0px; }
+        }
+    }
 }
