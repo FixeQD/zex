@@ -13,7 +13,7 @@ use flume::Receiver;
 use gtk4::gdk;
 use gtk4::gio;
 use gtk4::prelude::*;
-use gtk4_layer_shell::{Edge, KeyboardInteractivity, Layer, LayerShell};
+use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use relm4::prelude::*;
 use zex_core::SettingsStore;
 use zex_core::settings::Anchor;
@@ -105,7 +105,7 @@ impl Popups {
             window.set_layer(Layer::Overlay);
             window.set_monitor(Some(&monitor));
             window.set_namespace(Some(&format!("zex-notifications-{idx}")));
-            window.set_keyboard_interactivity(KeyboardInteractivity::None);
+            window.set_keyboard_mode(KeyboardMode::None);
             window.set_visible(false);
 
             let box_ = gtk4::Box::new(gtk4::Orientation::Vertical, 3);

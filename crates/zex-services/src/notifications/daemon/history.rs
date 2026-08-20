@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use super::super::model::types::Notification;
+use super::types::Notification;
 
 pub struct History {
     entries: VecDeque<Notification>,

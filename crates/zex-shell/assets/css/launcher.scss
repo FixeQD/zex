@@ -1,0 +1,174 @@
+// Zex launcher
+
+$surface: #131316;
+$surface-container-high: #26262c;
+$surface-container-highest: #2c2c33;
+$on-surface: #e3e2e6;
+$on-surface-variant: #c7c6ce;
+$primary: #d3e3fd;
+$secondary-container: #262c3a;
+$on-secondary-container: #d9e2f8;
+$outline-variant: #47474e;
+$scrim: rgba(0, 0, 0, 0.35);
+
+.launcher-backdrop {
+  background-color: $scrim;
+  color: transparent;
+}
+
+.launcher-panel {
+  background-color: $surface-container-highest;
+  border-radius: 24px;
+  padding: 16px;
+  margin: 32px;
+  border: 1px solid $outline-variant;
+}
+
+.launcher-search-bar {
+  background-color: $surface-container-high;
+  border-radius: 999px;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+}
+
+.launcher-symbol {
+  font-family: "Material Symbols Outlined";
+  font-size: 22px;
+  color: $on-surface-variant;
+  padding: 0 6px 0 0;
+  min-width: 26px;
+}
+
+.launcher-entry {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: $on-surface;
+  font-size: 16px;
+  caret-color: $primary;
+}
+
+.launcher-clear-button,
+.launcher-layout-button {
+  .m3-button-icon {
+    color: $on-surface-variant;
+  }
+}
+
+.launcher-pinned {
+  margin-bottom: 4px;
+}
+
+.launcher-pinned-item {
+  background-color: $surface-container-high;
+  border-radius: 16px;
+  padding: 8px;
+}
+
+.launcher-pinned-item:hover {
+  background-color: $surface-container-highest;
+}
+
+.launcher-pin-hint-icon {
+  color: $on-surface-variant;
+}
+
+.launcher-pin-hint {
+  color: $on-surface-variant;
+  font-size: 12px;
+  padding-top: 4px;
+}
+
+.launcher-results {
+  padding-bottom: 4px;
+}
+
+.launcher-row {
+  background-color: transparent;
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin: 1px 0;
+}
+
+.launcher-row:hover {
+  background-color: $surface-container-high;
+}
+
+.launcher-row.selected {
+  background-color: $secondary-container;
+  border-radius: 12px;
+}
+
+.launcher-row.selected .launcher-row-name {
+  color: $on-secondary-container;
+}
+
+.launcher-list .list-row {
+  margin: 0;
+  padding: 0;
+}
+
+.launcher-featured-row {
+  margin-bottom: 6px;
+}
+
+.launcher-grid-item {
+  background-color: transparent;
+  border-radius: 14px;
+  padding: 10px 6px;
+  margin: 2px;
+}
+
+.launcher-grid-item:hover {
+  background-color: $surface-container-high;
+}
+
+.launcher-grid-item.selected {
+  background-color: $secondary-container;
+  border-radius: 14px;
+}
+
+.launcher-grid-item.selected .launcher-row-name {
+  color: $on-secondary-container;
+}
+
+.launcher-row-name {
+  color: $on-surface;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.launcher-row-description {
+  color: $on-surface-variant;
+  font-size: 12px;
+}
+
+.launcher-icon,
+.launcher-grid-icon,
+.launcher-icon-featured,
+.launcher-pinned-icon,
+.launcher-icon-placeholder {
+  color: $on-surface-variant;
+}
+
+.launcher-menu {
+  padding: 8px;
+}
+
+.launcher-menu-heading {
+  color: $on-surface-variant;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px 8px 8px;
+}
+
+.launcher-menu-item {
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: $on-surface;
+  font-size: 13px;
+}
+
+.launcher-menu-item:hover {
+  background-color: $surface-container-high;
+}

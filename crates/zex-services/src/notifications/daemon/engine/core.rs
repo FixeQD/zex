@@ -4,10 +4,10 @@ use std::sync::{Arc, Mutex};
 use flume::Sender;
 use zbus::zvariant::OwnedValue;
 
-use super::super::model::types::{
+use super::super::history::History;
+use super::super::types::{
     Notification, NotificationAction, NotificationEvent, NotificationsConfig, Urgency,
 };
-use super::super::store::history::History;
 use super::signals;
 
 enum Reason {

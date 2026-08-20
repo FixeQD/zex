@@ -3,7 +3,7 @@ use std::sync::Arc;
 use flume::Receiver;
 use tokio::task::JoinHandle;
 
-use super::super::client::facade::ClientCommand;
+use super::super::client::ClientCommand;
 use super::super::engine::core::Core;
 
 pub fn spawn(rx: Receiver<ClientCommand>, core: Arc<Core>) -> JoinHandle<()> {

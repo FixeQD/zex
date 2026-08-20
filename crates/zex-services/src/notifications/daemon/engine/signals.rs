@@ -1,14 +1,10 @@
 use zbus::Connection;
 use zbus::object_server::SignalEmitter;
 
-use super::super::bus::server::{NotificationsServer, NotificationsServerSignals};
 use super::super::OBJECT_PATH;
+use super::super::server::{NotificationsServer, NotificationsServerSignals};
 
-pub async fn notification_closed(
-    conn: &Connection,
-    id: u32,
-    reason: u32,
-) -> zbus::fdo::Result<()> {
+pub async fn notification_closed(conn: &Connection, id: u32, reason: u32) -> zbus::fdo::Result<()> {
     let iface_ref = conn
         .object_server()
         .interface::<_, NotificationsServer>(OBJECT_PATH)

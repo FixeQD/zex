@@ -5,7 +5,7 @@ use zbus::interface;
 use zbus::object_server::SignalEmitter;
 use zbus::zvariant::OwnedValue;
 
-use super::super::engine::core::Core;
+use super::engine::core::Core;
 
 pub struct NotificationsServer {
     pub core: Arc<Core>,

@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use super::super::model::types::{Notification, NotificationsConfig};
+use super::types::{Notification, NotificationsConfig};
 
 /// Commands executed on the daemon runtime
 pub(crate) enum ClientCommand {

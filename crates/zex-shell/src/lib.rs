@@ -6,6 +6,7 @@
 
 pub mod bar;
 pub mod corners;
+pub mod launcher;
 pub mod lockscreen;
 pub mod m3;
 pub mod overlays;

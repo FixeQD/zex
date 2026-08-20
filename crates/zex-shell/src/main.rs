@@ -3,8 +3,10 @@ use gtk4::prelude::*;
 use relm4::Component;
 use zex_shell::bar::Bars;
 use zex_shell::corners::Corners;
+use zex_shell::launcher::Launcher;
 use zex_shell::lockscreen::Lockscreen;
 use zex_shell::overlays::osd::Osd;
+use zex_shell::shared::ActionHandles;
 use zex_shell::wallpaper::Wallpaper;
 
 fn main() -> anyhow::Result<()> {
@@ -15,8 +17,10 @@ fn main() -> anyhow::Result<()> {
     gtk4::init().context("initializing gtk")?;
     tracing::info!("zex shell starting");
 
+    let actions = ActionHandles::new();
+
     let store = zex_core::SettingsStore::load().context("loading settings")?;
-    let _bars = Bars::builder().launch(store);
+    let _bars = Bars::builder().launch((store, actions.clone()));
 
     let store = zex_core::SettingsStore::load().context("loading settings")?;
     let _corners = Corners::builder().launch(store);
@@ -53,6 +57,9 @@ fn main() -> anyhow::Result<()> {
 
     let store = zex_core::SettingsStore::load().context("loading settings")?;
     let _lockscreen = Lockscreen::builder().launch((store, lock_rx));
+
+    let store = zex_core::SettingsStore::load().context("loading settings")?;
+    let _launcher = Launcher::builder().launch((store, actions));
 
     let _m3_provider = zex_shell::m3::install_css();
     if std::env::var_os("ZEX_M3_SHOWCASE").is_some() {

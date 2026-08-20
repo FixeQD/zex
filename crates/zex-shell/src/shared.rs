@@ -111,6 +111,7 @@ pub fn fade_in(picture: &gtk4::Picture, fade_gen: &Rc<Cell<u64>>) {
 /// its toggle on launch and every consumer just calls it.
 #[derive(Default)]
 pub struct ActionHandles {
+    launcher: RefCell<Option<Rc<dyn Fn()>>>,
     quickcenter: RefCell<Option<Rc<dyn Fn()>>>,
     powermenu: RefCell<Option<Rc<dyn Fn()>>>,
     settings: RefCell<Option<Rc<dyn Fn()>>>,
@@ -119,6 +120,10 @@ pub struct ActionHandles {
 impl ActionHandles {
     pub fn new() -> Rc<Self> {
         Rc::new(Self::default())
+    }
+
+    pub fn set_launcher(&self, toggle: impl Fn() + 'static) {
+        *self.launcher.borrow_mut() = Some(Rc::new(toggle));
     }
 
     pub fn set_quickcenter(&self, toggle: impl Fn() + 'static) {
@@ -131,6 +136,12 @@ impl ActionHandles {
 
     pub fn set_settings(&self, open: impl Fn() + 'static) {
         *self.settings.borrow_mut() = Some(Rc::new(open));
+    }
+
+    pub fn toggle_launcher(&self) {
+        if let Some(toggle) = self.launcher.borrow().as_ref() {
+            toggle();
+        }
     }
 
     pub fn toggle_quickcenter(&self) {

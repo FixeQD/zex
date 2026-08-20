@@ -4,15 +4,15 @@ use std::time::Duration;
 use anyhow::{Context, Result};
 use flume::Receiver;
 use tokio::task::JoinHandle;
-use zbus::names::WellKnownName;
 use zbus::Connection;
+use zbus::names::WellKnownName;
 
-use super::commands;
-use super::super::bus::server::NotificationsServer;
-use super::super::client::facade::NotificationClient;
-use super::super::engine::core::Core;
-use super::super::model::types::{Notification, NotificationEvent, NotificationsConfig};
 use super::super::OBJECT_PATH;
+use super::super::client::NotificationClient;
+use super::super::engine::core::Core;
+use super::super::server::NotificationsServer;
+use super::super::types::{Notification, NotificationEvent, NotificationsConfig};
+use super::commands;
 
 pub struct Notifications {
     events: Receiver<NotificationEvent>,
@@ -68,7 +68,9 @@ impl Notifications {
         Ok(Self {
             events: rx,
             core,
-            client: NotificationClient { commands: commands_tx },
+            client: NotificationClient {
+                commands: commands_tx,
+            },
             _tasks: vec![timeout_task, age_task, command_task],
         })
     }

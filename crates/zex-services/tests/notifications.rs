@@ -596,10 +596,22 @@ fn fan_delivers_every_event_to_every_subscriber() {
     fan.push(&NotificationEvent::DndChanged(true));
     fan.push(&NotificationEvent::DndChanged(false));
 
-    assert_eq!(first.recv_timeout(Duration::from_millis(200)), Ok(NotificationEvent::DndChanged(true)));
-    assert_eq!(first.recv_timeout(Duration::from_millis(200)), Ok(NotificationEvent::DndChanged(false)));
-    assert_eq!(second.recv_timeout(Duration::from_millis(200)), Ok(NotificationEvent::DndChanged(true)));
-    assert_eq!(second.recv_timeout(Duration::from_millis(200)), Ok(NotificationEvent::DndChanged(false)));
+    assert_eq!(
+        first.recv_timeout(Duration::from_millis(200)),
+        Ok(NotificationEvent::DndChanged(true))
+    );
+    assert_eq!(
+        first.recv_timeout(Duration::from_millis(200)),
+        Ok(NotificationEvent::DndChanged(false))
+    );
+    assert_eq!(
+        second.recv_timeout(Duration::from_millis(200)),
+        Ok(NotificationEvent::DndChanged(true))
+    );
+    assert_eq!(
+        second.recv_timeout(Duration::from_millis(200)),
+        Ok(NotificationEvent::DndChanged(false))
+    );
 
     // Dead subscriptions are pruned
     drop(first);

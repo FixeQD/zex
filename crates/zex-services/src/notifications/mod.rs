@@ -5,9 +5,9 @@ mod daemon;
 
 pub use broadcast::Fan;
 pub use daemon::client::NotificationClient;
-pub use daemon::model::types::{
+pub use daemon::history::relative_age;
+pub use daemon::runtime::service::Notifications;
+pub use daemon::types::{
     Notification, NotificationAction, NotificationEvent, NotificationsConfig, Urgency,
 };
-pub use daemon::runtime::service::Notifications;
-pub use daemon::store::history::relative_age;
 pub use daemon::{BUS_NAME, OBJECT_PATH};

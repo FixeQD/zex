@@ -16,7 +16,7 @@ use flume::Receiver;
 use gtk4::gdk;
 use gtk4::gio;
 use gtk4::prelude::*;
-use gtk4_layer_shell::{KeyboardInteractivity, Layer, LayerShell};
+use gtk4_layer_shell::{KeyboardMode, Layer, LayerShell};
 use relm4::prelude::*;
 use zex_core::SettingsStore;
 use zex_core::store::Subscription;
@@ -213,7 +213,7 @@ impl QuickCenter {
         window.set_layer(Layer::Overlay);
         window.set_monitor(Some(monitor));
         window.set_namespace(Some(&format!("zex-quick-center-{idx}")));
-        window.set_keyboard_interactivity(KeyboardInteractivity::Exclusive);
+        window.set_keyboard_mode(KeyboardMode::Exclusive);
         window.set_visible(false);
         window.set_anchor(gtk4_layer_shell::Edge::Top, true);
         window.set_anchor(gtk4_layer_shell::Edge::Bottom, true);
@@ -304,9 +304,9 @@ impl QuickCenter {
         keys.connect_key_pressed(move |_controller, key, _keycode, _state| {
             if key == gtk4::gdk::keys::constants::Escape {
                 on_close(monitor_idx);
-                gtk4::Propagation::Stop
+                gtk4::glib::Propagation::Stop
             } else {
-                gtk4::Propagation::Proceed
+                gtk4::glib::Propagation::Proceed
             }
         });
         panel.window.add_controller(keys);

@@ -25,6 +25,7 @@ use zex_services::tray::{SystemTray, TrayEvent, TrayItem};
 use zex_services::upower::{Battery, Upower};
 
 use crate::shared;
+use crate::shared::ActionHandles;
 use crate::widgets::{DockDeps, SharedSettings, Widgets};
 use window::{BarMsg, BarWindow, BarWindowInit};
 
@@ -82,6 +83,8 @@ pub struct Bars {
     apps: Vec<AppInfo>,
     /// Pinned app ids, watched for reordering and quick-centering
     pins: Rc<PinnedApps>,
+    /// Shared overlay actions: launcher/quick-center toggles
+    actions: Rc<ActionHandles>,
     /// Live tray item snapshot, fed by the status thread
     tray_items: Vec<TrayItem>,
     /// Live battery snapshot, fed by the status thread
@@ -93,25 +96,21 @@ pub struct Bars {
 }
 
 impl Bars {
-    /// Registry for one monitor; the launcher button is a stub until the window manager land in a later commit
+    /// Registry for one monitor; overlay buttons route through the shared handles
     fn build_registry(&self) -> Widgets {
         let settings = Rc::clone(&self.settings);
         let switcher = self.compositor.clone();
         let media_control = crate::bar::widgets::MprisControl::new(self.media_cmds.clone());
+        let actions = Rc::clone(&self.actions);
+        let quickcenter = Rc::clone(&actions);
         Widgets::build(
             settings,
-            || {
-                tracing::info!("launcher requested; window manager lands in a later commit");
-            },
+            move || actions.toggle_launcher(),
             switcher,
             media_control,
             self.display_offset(),
             DockDeps {
-                on_quickcenter: Rc::new(|| {
-                    tracing::info!(
-                        "quick center requested; window manager lands in a later commit"
-                    );
-                }),
+                on_quickcenter: Rc::new(move || quickcenter.toggle_quickcenter()),
                 tray: crate::bar::widgets::systeminfotray::TrayControl::new(
                     self.status_cmds.clone(),
                 ),
@@ -229,7 +228,7 @@ impl Bars {
 
 #[relm4::component(pub)]
 impl SimpleComponent for Bars {
-    type Init = SettingsStore;
+    type Init = (SettingsStore, Rc<ActionHandles>);
     type Input = BarsMsg;
     type Output = ();
 
@@ -240,7 +239,7 @@ impl SimpleComponent for Bars {
     }
 
     fn init(
-        store: Self::Init,
+        (store, actions): Self::Init,
         _root: Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
@@ -261,6 +260,7 @@ impl SimpleComponent for Bars {
             status_cmds,
             apps: Vec::new(),
             pins: Rc::new(PinnedApps::load(None)),
+            actions,
             tray_items: Vec::new(),
             batteries: Vec::new(),
             volume: VolumeState::default(),
