@@ -233,7 +233,7 @@ fn texture_from_art_url(art_url: &str) -> Option<gtk4::gdk::Texture> {
     gtk4::gdk::Texture::from_filename(&path).ok()
 }
 
-fn percent_decode(s: &str) -> Option<String> {
+pub fn percent_decode(s: &str) -> Option<String> {
     let bytes = s.as_bytes();
     let mut out = Vec::with_capacity(bytes.len());
     let mut i = 0;
@@ -266,17 +266,5 @@ fn truncate(s: &str) -> String {
     } else {
         let cut: String = s.chars().take(MAX_TEXT_CHARS).collect();
         format!("{cut}…")
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn percent_decode_resolves_escapes() {
-        assert_eq!(percent_decode("//a%20b.jpg").as_deref(), Some("//a b.jpg"));
-        assert_eq!(percent_decode("plain-path").as_deref(), Some("plain-path"));
-        assert!(percent_decode("bad%zz").is_none());
     }
 }

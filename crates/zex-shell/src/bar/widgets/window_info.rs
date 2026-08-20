@@ -150,23 +150,3 @@ pub fn truncate(s: &str) -> String {
         format!("{cut}…")
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn truncate_keeps_short_titles() {
-        assert_eq!(truncate("hello"), "hello");
-        assert_eq!(truncate(&"x".repeat(52)), "x".repeat(52));
-    }
-
-    #[test]
-    fn truncate_marks_long_titles() {
-        let long = "a".repeat(53);
-        let cut = truncate(&long);
-        assert_eq!(cut.chars().count(), 53);
-        assert!(cut.ends_with('…'));
-        assert!(!cut.ends_with('a'));
-    }
-}

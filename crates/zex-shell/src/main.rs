@@ -59,7 +59,10 @@ fn main() -> anyhow::Result<()> {
     let _lockscreen = Lockscreen::builder().launch((store, lock_rx));
 
     let store = zex_core::SettingsStore::load().context("loading settings")?;
-    let _launcher = Launcher::builder().launch((store, actions));
+    let _launcher = Launcher::builder().launch((store, actions.clone()));
+
+    let store = zex_core::SettingsStore::load().context("loading settings")?;
+    let _settings = zex_shell::settings::Settings::builder().launch((store, actions.clone()));
 
     let _m3_provider = zex_shell::m3::install_css();
     if std::env::var_os("ZEX_M3_SHOWCASE").is_some() {

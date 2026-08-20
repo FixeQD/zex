@@ -55,3 +55,22 @@ fn grid_step_with_one_column_is_linear() {
     assert_eq!(grid_step(count, 1, 3, 1, false), 3);
     assert_eq!(grid_step(count, 1, 3, 1, true), 0);
 }
+
+#[test]
+fn grid_step_single_row_clamps_and_wraps() {
+    // Fewer cells than columns: the whole catalog is one row
+    assert_eq!(grid_step(3, 4, 0, -1, false), 0);
+    assert_eq!(grid_step(3, 4, 2, 1, false), 2);
+    assert_eq!(grid_step(3, 4, 0, -1, true), 2);
+}
+
+#[test]
+fn grid_step_multi_row_clamps_and_keeps_column() {
+    // 6 cells in 3 columns = 2 full rows
+    assert_eq!(grid_step(6, 3, 0, 1, false), 1);
+    assert_eq!(grid_step(6, 3, 2, 1, false), 3);
+    // Jumping up three rows from the second row clamps to the first row, same column
+    assert_eq!(grid_step(6, 3, 1, -3, false), 1);
+    // Jumping down two rows from the last row clamps in place
+    assert_eq!(grid_step(6, 3, 5, 2, false), 5);
+}

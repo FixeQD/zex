@@ -1,0 +1,241 @@
+// Settings window stylesheet
+
+// M3 token fallbacks (mirror m3.scss; matugen overrides arrive via @zex-*)
+$surface: #131316;
+$surface-container: #1f1f24;
+$surface-container-high: #26262c;
+$surface-container-highest: #303036;
+$on-surface: #e3e2e6;
+$on-surface-variant: #c7c6ce;
+$primary: #d3e3fd;
+$outline-variant: #47474e;
+
+.settings-window {
+  padding: 0;
+  background-color: $surface-container;
+  color: $on-surface;
+
+  .header-bar {
+    padding: 6px 16px;
+    margin: 8px 8px 0 8px;
+    border-radius: 16px;
+    background-color: $surface-container-high;
+
+    .header-title-icon {
+      font-size: 18px;
+      color: $primary;
+    }
+    .header-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+    .header-crumb {
+      margin-left: 10px;
+      font-weight: 600;
+      color: $on-surface-variant;
+      opacity: 0.7;
+    }
+    .header-active {
+      margin-left: 4px;
+      font-weight: 500;
+      color: $on-surface-variant;
+    }
+  }
+
+  .rail-frame {
+    padding: 8px;
+
+    .navigation-rail {
+      .rail-button {
+        width: 100%;
+      }
+    }
+
+    .rail-button {
+      width: 100%;
+    }
+  }
+
+  scrolledwindow viewport {
+    margin: 0;
+    border-radius: 16px 0 0 0;
+    background-color: $surface;
+  }
+
+  .settings-body {
+    padding: 16px 10px;
+  }
+}
+
+.settings-category-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  margin-bottom: 4px;
+  color: $on-surface-variant;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.settings-category {
+  margin: 0;
+  border-radius: 24px;
+  background-color: $surface-container;
+  padding: 8px;
+
+  > separator {
+    background-color: $outline-variant;
+    margin: 2px 12px;
+  }
+}
+
+.settings-row,
+.row-button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 16px;
+  border: none;
+  box-shadow: none;
+
+  .settings-row-header {
+    .settings-row-title {
+      font-weight: 400;
+      font-size: 1rem;
+      line-height: 18px;
+      color: $on-surface;
+    }
+    .settings-row-description {
+      font-weight: 400;
+      font-size: 0.9rem;
+      line-height: 15px;
+      color: $on-surface-variant;
+      opacity: 0.85;
+    }
+  }
+}
+
+button.row-button {
+  background-color: transparent;
+
+  &:hover {
+    background-color: $surface-container-high;
+  }
+}
+
+button.row-button .switch-row {
+  border: none;
+}
+
+.settings-row.module-options {
+  .module-separator {
+    margin: 4px 8px;
+    min-width: 2px;
+    min-height: 28px;
+    border-radius: 2px;
+    background-color: $surface-container-high;
+  }
+}
+
+.wallpaper-preview {
+  border-radius: 16px;
+}
+
+.wallpaper-overlay {
+  .wallpaper-button-overlay {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 16px;
+    outline-offset: 2px;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  .wallpaper-filename-label {
+    background-color: $surface-container;
+    color: $on-surface;
+    padding: 5px 14px;
+    border-radius: 9999px;
+  }
+}
+
+.folder-chooser-button {
+  background-color: $surface-container-high;
+  border-radius: 16px;
+  font-weight: 500;
+  padding: 6px 18px;
+  color: $primary;
+}
+
+.wallpaper-gallery-container {
+  padding: 0;
+  border-radius: 16px;
+
+  scrolledwindow viewport {
+    border-radius: 12px;
+  }
+
+  .wallpaper-thumbnail {
+    padding: 0;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    box-shadow: none;
+
+    &.selected {
+      border-color: $primary;
+    }
+
+    picture {
+      border-radius: 6px;
+    }
+  }
+}
+
+.palette-preview-btn {
+  border-radius: 16px;
+  background-color: $surface-container-highest;
+  padding: 8px;
+  border: none;
+  box-shadow: none;
+
+  .preview {
+    border-radius: 50px;
+    outline: 2px solid $surface-container;
+  }
+
+  &.selected {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: 16px;
+  }
+}
+
+.theme-preview-btn {
+  padding: 0;
+  border-radius: 20px;
+  border: none;
+  box-shadow: none;
+
+  &.selected {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  .container {
+    padding: 5px;
+    border-radius: 15px;
+
+    .btn-1,
+    .btn-2,
+    .btn-3 {
+      border-radius: 6px;
+    }
+  }
+
+  .icon {
+    font-size: 16px;
+  }
+}

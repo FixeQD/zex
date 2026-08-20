@@ -10,6 +10,7 @@ pub mod launcher;
 pub mod lockscreen;
 pub mod m3;
 pub mod overlays;
+pub mod settings;
 pub mod shared;
 pub mod wallpaper;
 pub mod widgets;

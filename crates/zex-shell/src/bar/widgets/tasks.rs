@@ -12,7 +12,6 @@ use zex_services::compositor::WindowInfo;
 use super::icon::{app_icon, has_icon};
 use super::popover::{PopoverItem, show_popover};
 
-/// Exo's `_is_same_app`: id containment in either direction, case-insensitive
 pub fn is_same_app(id1: &str, id2: &str) -> bool {
     if id1.is_empty() || id2.is_empty() {
         return false;

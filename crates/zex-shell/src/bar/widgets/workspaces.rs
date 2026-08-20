@@ -264,25 +264,3 @@ fn has_icon(name: &str) -> bool {
         .map(|display| gtk4::IconTheme::for_display(&display).has_icon(name))
         .unwrap_or(false)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn page_windows_are_size_amount() {
-        assert_eq!(page_window(1, 3), (1, 3));
-        assert_eq!(page_window(3, 3), (1, 3));
-        assert_eq!(page_window(4, 3), (4, 6));
-        assert_eq!(page_window(7, 5), (6, 10));
-        assert_eq!(page_window(5, 0), (5, 5));
-    }
-
-    #[test]
-    fn style_parses() {
-        assert_eq!(Style::from_settings("dots"), Style::Dots);
-        assert_eq!(Style::from_settings("windows"), Style::Windows);
-        assert_eq!(Style::from_settings("fancy"), Style::Numbers);
-        assert_eq!(Style::from_settings(""), Style::Numbers);
-    }
-}

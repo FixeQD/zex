@@ -30,5 +30,4 @@ pub fn grid_step(count: usize, columns: u32, sel: usize, delta: i32, wrap: bool)
             target_row * columns + column
         }
     }
-    4
 }
