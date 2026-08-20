@@ -2,7 +2,9 @@
 
 pub mod about;
 pub mod appearance;
+pub mod bluetooth;
 pub mod interface;
+pub mod network;
 pub mod quick;
 pub mod services;
 
@@ -42,6 +44,8 @@ pub fn build_tab(key: &str, ctx: &TabContext) -> gtk4::Widget {
         "quick" => quick::build(ctx).upcast(),
         "appearance" => appearance::build(ctx).upcast(),
         "interface" => interface::build(ctx).upcast(),
+        "network" => network::build(ctx).upcast(),
+        "bluetooth" => bluetooth::build(ctx).upcast(),
         "services" => services::build(ctx).upcast(),
         "about" => about::build(ctx).upcast(),
         other => {

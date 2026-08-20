@@ -7,7 +7,7 @@ use super::SettingsMsg;
 use crate::m3::{M3Button, M3Shape, M3Size, M3Type, NavigationRail};
 
 /// The five settings tabs in rail order: (key, label, rail icon).
-pub const TABS: [(&str, &str, &str); 5] = [
+pub const TABS: [(&str, &str, &str); 7] = [
     ("quick", "Quick", "view-grid-symbolic"),
     (
         "appearance",
@@ -15,6 +15,8 @@ pub const TABS: [(&str, &str, &str); 5] = [
         "preferences-desktop-wallpaper-symbolic",
     ),
     ("interface", "Interface", "preferences-system-symbolic"),
+    ("network", "Network", "network-wired-symbolic"),
+    ("bluetooth", "Bluetooth", "bluetooth-active-symbolic"),
     ("services", "Services", "preferences-other-symbolic"),
     ("about", "About", "help-about-symbolic"),
 ];
