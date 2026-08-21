@@ -4,14 +4,10 @@
 //! exposed here so integration tests in `tests/` can drive them without a
 //! running compositor.
 
-pub mod bar;
-pub mod corners;
-pub mod launcher;
-pub mod lockscreen;
-pub mod m3;
-pub mod notifications;
-pub mod overlays;
-pub mod settings;
-pub mod shared;
-pub mod wallpaper;
+pub mod app;
+pub mod services_bridge;
 pub mod widgets;
+pub mod windows;
+
+#[cfg(test)]
+pub mod tests;
