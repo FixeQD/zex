@@ -2143,6 +2143,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "iced_wayland_subscriber"
+version = "0.19.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a60e1abe38d167591d75ead3651ff6a93f1c85059f31d486a929611c0e2c8db"
+dependencies = [
+ "futures",
+ "iced",
+ "thiserror 2.0.20",
+ "wayland-client",
+ "wayland-protocols",
+]
+
+[[package]]
 name = "iced_wgpu"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6465,8 +6478,10 @@ dependencies = [
  "iced_exwlshell",
  "iced_futures",
  "iced_graphics",
+ "iced_program",
  "iced_renderer",
  "iced_runtime",
+ "iced_wayland_subscriber",
  "iced_wgpu",
  "iced_widget",
  "image",

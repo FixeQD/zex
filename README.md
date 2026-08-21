@@ -6,4 +6,4 @@ No desc yet
 
 ## License
 
-GPLv3 — see [`LICENSE`](LICENSE).
+GPLv3 - see [`LICENSE`](LICENSE).

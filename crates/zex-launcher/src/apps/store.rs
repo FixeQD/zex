@@ -12,7 +12,7 @@ use tracing::debug;
 /// Bump when the stored layout changes
 pub const SCHEMA_VERSION: i64 = 2;
 
-/// `~/.config/zex/apps.sqlite3` — shared index for launcher and dock
+/// `~/.config/zex/apps.sqlite3` shared index for launcher and dock
 pub fn default_store_path() -> PathBuf {
     dirs::config_dir()
         .unwrap_or_else(|| PathBuf::from("."))

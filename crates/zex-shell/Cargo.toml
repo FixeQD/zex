@@ -37,6 +37,8 @@ iced_graphics.workspace = true
 iced_runtime.workspace = true
 iced_futures.workspace = true
 iced_renderer.workspace = true
+iced_wayland_subscriber.workspace = true
+iced_program.workspace = true
 
 [[bin]]
 name = "zex-shell"
