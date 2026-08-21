@@ -12,7 +12,9 @@ pub mod palette;
 
 pub use palette::{Palette, Rgba};
 pub use iced_theme::{
-    block_on, palette_to_iced_theme, preview_scss, theme_from_settings, theme_from_wallpaper,
+    block_on, compile, ensure_generator_config, palette_env, palette_to_iced_theme,
+    preview_scss, render, theme_from_settings, theme_from_wallpaper, theme_scss,
+    COLORS_SCSS, LIGHT_THEME_OVERRIDES_SCSS, PREVIEW_COLORS_SCSS,
 };
 
 /// Generate preview swatches for the settings panel
