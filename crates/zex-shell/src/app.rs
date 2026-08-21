@@ -274,10 +274,17 @@ impl iced::Program for ZexProgram {
 
     fn view<'a>(
         &self,
-        _state: &'a State,
-        _window: IcedId,
+        state: &'a State,
+        window: IcedId,
     ) -> iced_core::Element<'a, Message, Theme, iced_wgpu::Renderer> {
-        iced::widget::text("zex-shell - iced shell (multi_window + on_new_shell)").into()
+        if let Some(ws) = state.windows.get(&window) {
+            match ws.kind {
+                WindowKind::Bar { monitor, bar_id } => crate::windows::bar::view(monitor, bar_id, state),
+                _ => iced::widget::text(format!("{ws:?}")).into(),
+            }
+        } else {
+            iced::widget::text("zex-shell").into()
+        }
     }
 
     fn theme(&self, state: &State, _window: IcedId) -> Option<Theme> {

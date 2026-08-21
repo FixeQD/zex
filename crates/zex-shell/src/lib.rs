@@ -5,6 +5,7 @@
 //! running compositor.
 
 pub mod app;
+pub mod bar;
 pub mod services_bridge;
 pub mod widgets;
 pub mod windows;

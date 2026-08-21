@@ -2,6 +2,7 @@ use anyhow::Result;
 use zex_core::{Settings, SettingsStore};
 
 mod app;
+mod bar;
 mod services_bridge;
 mod widgets;
 mod windows;
