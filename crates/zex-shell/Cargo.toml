@@ -18,21 +18,28 @@ zex-services = { path = "../zex-services" }
 zex-launcher = { path = "../zex-launcher" }
 flume = "0.11"
 tokio.workspace = true
-tokio-util = { version = "0.7", features = ["codec"] }
-tarpc = { version = "0.38", features = ["serde-transport-json", "unix"] }
+tokio-util.workspace = true
+tarpc.workspace = true
 zbus = { version = "5.19", features = ["tokio", "blocking"] }
-gtk4.workspace = true
-gdk-pixbuf.workspace = true
-grass.workspace = true
-gtk4-layer-shell.workspace = true
-glib.workspace = true
-relm4.workspace = true
+rust-embed.workspace = true
+chrono.workspace = true
 image.workspace = true
 libc.workspace = true
 zeroize.workspace = true
 
+# iced stack
+iced.workspace = true
+iced_exwlshell.workspace = true
+iced_wgpu.workspace = true
+iced_core.workspace = true
+iced_widget.workspace = true
+iced_graphics.workspace = true
+iced_runtime.workspace = true
+iced_futures.workspace = true
+iced_renderer.workspace = true
+
 [[bin]]
-name = "zex"
+name = "zex-shell"
 path = "src/main.rs"
 
 [[bin]]

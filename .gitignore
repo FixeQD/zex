@@ -1,3 +1,7 @@
 /target
 /result
 configs/.direnv
+*.crate
+Cargo.lock
+.flake
+.direnv
