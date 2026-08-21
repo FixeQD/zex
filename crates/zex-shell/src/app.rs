@@ -2,8 +2,10 @@ use std::collections::HashMap;
 
 use iced::Theme;
 use iced::window::Id as IcedId;
-use iced_exwlshell::actions::ExwlShellCustomActionWithId;
-use iced_exwlshell::reexport::Anchor;
+use iced_exwlshell::actions::{
+    ExwlShellCustomAction, ExwlShellCustomActionWithId, IcedXdgWindowSettings,
+};
+use iced_exwlshell::reexport::{Anchor, NewLayerShellSettings};
 use zex_core::Settings;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -102,12 +104,40 @@ pub enum Message {
     ServiceEvent(ServiceEvent),
     IpcRequest(IpcRequest),
     ShellEvent(()),
+    // shell actions produced by windows:: factory
+    NewLayerShell(NewLayerShellSettings, IcedId),
+    NewBaseWindow(IcedXdgWindowSettings, IcedId),
+    DoLock,
+    DoUnlock,
+    RemoveWindow(IcedId),
 }
 
 impl TryInto<ExwlShellCustomActionWithId> for Message {
     type Error = Self;
     fn try_into(self) -> Result<ExwlShellCustomActionWithId, Self::Error> {
-        Err(self)
+        match self {
+            Message::NewLayerShell(settings, id) => Ok(ExwlShellCustomActionWithId(
+                Some(id),
+                ExwlShellCustomAction::NewLayerShell { settings, id },
+            )),
+            Message::NewBaseWindow(settings, id) => Ok(ExwlShellCustomActionWithId(
+                Some(id),
+                ExwlShellCustomAction::NewBaseWindow { settings, id },
+            )),
+            Message::DoLock => Ok(ExwlShellCustomActionWithId(
+                None,
+                ExwlShellCustomAction::Lock,
+            )),
+            Message::DoUnlock => Ok(ExwlShellCustomActionWithId(
+                None,
+                ExwlShellCustomAction::UnLock,
+            )),
+            Message::RemoveWindow(id) => Ok(ExwlShellCustomActionWithId(
+                Some(id),
+                ExwlShellCustomAction::RemoveWindow,
+            )),
+            other => Err(other),
+        }
     }
 }
 
@@ -234,6 +264,11 @@ impl iced::Program for ZexProgram {
                 _ => iced::Task::none(),
             },
             Message::ShellEvent(_) => iced::Task::none(),
+            Message::NewLayerShell(_, _)
+            | Message::NewBaseWindow(_, _)
+            | Message::DoLock
+            | Message::DoUnlock
+            | Message::RemoveWindow(_) => iced::Task::none(),
         }
     }
 
