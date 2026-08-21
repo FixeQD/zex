@@ -104,7 +104,8 @@ pub enum Message {
     ServiceEvent(ServiceEvent),
     IpcRequest(IpcRequest),
     ShellEvent(()),
-    // shell actions produced by windows:: factory
+    SwitchWorkspace(i32),
+    MediaPlayPause(String),
     NewLayerShell(NewLayerShellSettings, IcedId),
     NewBaseWindow(IcedXdgWindowSettings, IcedId),
     DoLock,
@@ -263,6 +264,7 @@ impl iced::Program for ZexProgram {
                 IpcRequest::Quit => std::process::exit(0),
                 _ => iced::Task::none(),
             },
+            Message::SwitchWorkspace(_) | Message::MediaPlayPause(_) => iced::Task::none(),
             Message::ShellEvent(_) => iced::Task::none(),
             Message::NewLayerShell(_, _)
             | Message::NewBaseWindow(_, _)
@@ -276,7 +278,7 @@ impl iced::Program for ZexProgram {
         &self,
         state: &'a State,
         window: IcedId,
-    ) -> iced_core::Element<'a, Message, Theme, iced_wgpu::Renderer> {
+    ) -> iced::Element<'a, Message, Theme, iced_wgpu::Renderer> {
         if let Some(ws) = state.windows.get(&window) {
             match ws.kind {
                 WindowKind::Bar { monitor, bar_id } => crate::windows::bar::view(monitor, bar_id, state),

@@ -23,7 +23,6 @@ fn main() -> Result<()> {
     let _state = app::State::new(settings.clone(), theme.clone(), service_handles, rx);
 
     // In a running Wayland session this would start the iced_exwlshell event loop.
-    //! For `cargo check` / headless CI skip the actual run and just verify the wiring.
 
     // The hook that replaces every GTK `init_layer_shell()` call:
     let _on_new_shell = |info: iced_exwlshell::NewShellInfo| app::shell_info_to_message(info);

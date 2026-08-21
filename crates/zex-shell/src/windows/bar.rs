@@ -3,10 +3,14 @@ use iced::Element;
 use iced::Theme;
 
 use crate::app::{Message, State};
-use crate::bar::layout::{Area, Layout, Module};
-use crate::bar::styles;
+use crate::bar::{
+    layout::{Area, Layout, Module},
+    styles,
+    widgets::{media, window_info, workspaces},
+};
+use crate::bar::widgets::workspaces::Options as WsOpts;
 
-pub fn view<'a>(monitor: usize, bar_id: u8, state: &'a State) -> Element<'a, Message, Theme, iced_wgpu::Renderer> {
+pub fn view<'a>(monitor: usize, bar_id: u8, state: &'a State) -> iced::Element<'a, Message, iced::Theme, iced_wgpu::Renderer> {
     let cfg = &state.config.interface;
     let bar: &dyn styles::BarLike = if bar_id == 0 { &cfg.bar } else { &cfg.bar2 };
     let style = styles::compute(bar);
@@ -16,15 +20,27 @@ pub fn view<'a>(monitor: usize, bar_id: u8, state: &'a State) -> Element<'a, Mes
     let mut center: Vec<Element<'a, Message, Theme, iced_wgpu::Renderer>> = Vec::new();
     let mut right: Vec<Element<'a, Message, Theme, iced_wgpu::Renderer>> = Vec::new();
 
+    let ws_style =
+        workspaces::Style::from_settings(&cfg.modules.options.workspaces_style);
+    let ws_opts = WsOpts {
+        style: ws_style,
+        fixed: cfg.modules.options.fixed_workspaces_enabled,
+        amount: cfg.modules.options.fixed_workspaces_amount as usize,
+        vertical: bar.vertical(),
+        display_offset: 0,
+    };
+
     for p in layout.for_bar(bar_id) {
         if !p.visible {
             continue;
         }
         let w: Element<'a, Message, Theme, iced_wgpu::Renderer> = match p.module {
             Module::Launcher => text("≡").size(14).into(),
-            Module::WindowInfo => text("window").size(12).into(),
-            Module::Media => text("♫").size(12).into(),
-            Module::Workspaces => text("1 2 3").size(12).into(),
+            Module::WindowInfo => {
+                window_info::view(None, bar.vertical(), false, bar.density() < 0)
+            }
+            Module::Media => media::view(&[], bar.vertical(), false, bar.density() < 0),
+            Module::Workspaces => workspaces::view(&[], &[], ws_opts),
             Module::Tasks => text("tasks").size(12).into(),
             Module::RecordingIndicator => text("●").size(12).into(),
             Module::SystemInfoTray => text("tray").size(12).into(),
