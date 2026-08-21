@@ -106,6 +106,8 @@ pub enum Message {
     ShellEvent(()),
     SwitchWorkspace(i32),
     MediaPlayPause(String),
+    FocusWindow(String),
+    TrayActivate(String),
     NewLayerShell(NewLayerShellSettings, IcedId),
     NewBaseWindow(IcedXdgWindowSettings, IcedId),
     DoLock,
@@ -264,7 +266,10 @@ impl iced::Program for ZexProgram {
                 IpcRequest::Quit => std::process::exit(0),
                 _ => iced::Task::none(),
             },
-            Message::SwitchWorkspace(_) | Message::MediaPlayPause(_) => iced::Task::none(),
+            Message::SwitchWorkspace(_)
+            | Message::MediaPlayPause(_)
+            | Message::FocusWindow(_)
+            | Message::TrayActivate(_) => iced::Task::none(),
             Message::ShellEvent(_) => iced::Task::none(),
             Message::NewLayerShell(_, _)
             | Message::NewBaseWindow(_, _)

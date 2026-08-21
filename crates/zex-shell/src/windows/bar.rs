@@ -6,7 +6,7 @@ use crate::app::{Message, State};
 use crate::bar::{
     layout::{Area, Layout, Module},
     styles,
-    widgets::{media, window_info, workspaces},
+    widgets::{battery, clock, media, system_tray, tasks, window_info, workspaces},
 };
 use crate::bar::widgets::workspaces::Options as WsOpts;
 
@@ -41,13 +41,10 @@ pub fn view<'a>(monitor: usize, bar_id: u8, state: &'a State) -> iced::Element<'
             }
             Module::Media => media::view(&[], bar.vertical(), false, bar.density() < 0),
             Module::Workspaces => workspaces::view(&[], &[], ws_opts),
-            Module::Tasks => text("tasks").size(12).into(),
+            Module::Tasks => tasks::view(&[], &[], None, bar.vertical(), &bar.side().to_string(), bar.density()),
             Module::RecordingIndicator => text("●").size(12).into(),
-            Module::SystemInfoTray => text("tray").size(12).into(),
-            Module::Clock => {
-                let t = chrono::Local::now().format("%H:%M").to_string();
-                text(t).size(12).into()
-            }
+            Module::SystemInfoTray => system_tray::view(&[], 0.8, false),
+            Module::Clock => clock::view(&state.config),
         };
         match p.area {
             Area::Left => left.push(w),
