@@ -285,8 +285,9 @@ impl iced::Program for ZexProgram {
         window: IcedId,
     ) -> iced::Element<'a, Message, Theme, iced_wgpu::Renderer> {
         if let Some(ws) = state.windows.get(&window) {
-            match ws.kind {
-                WindowKind::Bar { monitor, bar_id } => crate::windows::bar::view(monitor, bar_id, state),
+            match &ws.kind {
+                WindowKind::Bar { monitor, bar_id } => crate::windows::bar::view(*monitor, *bar_id, state),
+                WindowKind::Wallpaper { .. } => crate::windows::wallpaper::view(state),
                 _ => iced::widget::text(format!("{ws:?}")).into(),
             }
         } else {

@@ -33,7 +33,7 @@ rust-embed = "8"
 grass = "0.13"
 
 # iced stack
-iced = { version = "0.14", features = ["wgpu"] }
+iced = { version = "0.14", features = ["wgpu", "image"] }
 iced_exwlshell = { version = "0.19", features = ["debug", "linux-theme-detection"] }
 iced_wgpu = "0.14"
 iced_core = "0.14"
