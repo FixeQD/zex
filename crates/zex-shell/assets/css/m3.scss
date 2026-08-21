@@ -83,12 +83,12 @@ $square-radius: 12px;
             color: $primary;
         }
         &:hover {
-            background-color: mix($surface-container, $primary, $weight: 92%, $method: hsl);
+            background-color: mix($surface-container, $primary, 92%);
             box-shadow: $elevation-4;
         }
         &:focus-visible,
         &:active {
-            background-color: mix($surface-container, $primary, $weight: 90%, $method: hsl);
+            background-color: mix($surface-container, $primary, 90%);
         }
     }
 
@@ -98,11 +98,11 @@ $square-radius: 12px;
             color: $on-primary;
         }
         &:hover {
-            background-color: mix($primary, $on-primary, $weight: 92%, $method: hsl);
+            background-color: mix($primary, $on-primary, 92%);
         }
         &:focus-visible,
         &:active {
-            background-color: mix($primary, $on-primary, $weight: 90%, $method: hsl);
+            background-color: mix($primary, $on-primary, 90%);
         }
     }
 
@@ -112,11 +112,11 @@ $square-radius: 12px;
             color: $on-secondary-container;
         }
         &:hover {
-            background-color: mix($secondary-container, $on-secondary-container, $weight: 92%, $method: hsl);
+            background-color: mix($secondary-container, $on-secondary-container, 92%);
         }
         &:focus-visible,
         &:active {
-            background-color: mix($secondary-container, $on-secondary-container, $weight: 90%, $method: hsl);
+            background-color: mix($secondary-container, $on-secondary-container, 90%);
         }
     }
 
@@ -324,7 +324,7 @@ switch {
     }
     &:hover {
         &:not(:checked) {
-            background-color: mix($surface-container-highest, $on-surface, $weight: 90%, $method: hsl);
+            background-color: mix($surface-container-highest, $on-surface, 90%);
         }
         slider {
             outline: 10px solid rgba($outline, 0.2);

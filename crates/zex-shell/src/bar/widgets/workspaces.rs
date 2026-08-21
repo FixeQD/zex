@@ -197,6 +197,7 @@ fn workspace_button(
 ) -> gtk4::Button {
     let button = gtk4::Button::new();
     button.add_css_class("workspace");
+    button.set_valign(gtk4::Align::Center);
     let exists = state.real.contains(&raw_id);
     if !exists {
         button.add_css_class("empty");

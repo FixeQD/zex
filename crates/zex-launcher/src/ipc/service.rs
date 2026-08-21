@@ -56,4 +56,11 @@ pub trait ZexControl {
     async fn quit() -> Result<(), Fault>;
 
     async fn reload() -> Result<(), Fault>;
+
+    // Window management
+    async fn open_window(name: String) -> Result<String, Fault>;
+
+    async fn toggle_window(name: String) -> Result<String, Fault>;
+
+    async fn close_window(name: String) -> Result<String, Fault>;
 }

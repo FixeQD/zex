@@ -4,6 +4,7 @@ pub mod battery;
 pub mod icon;
 pub mod media;
 pub mod popover;
+pub mod recording_indicator;
 pub mod systeminfotray;
 pub mod tasks;
 pub mod window_info;

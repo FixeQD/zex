@@ -21,6 +21,7 @@ use zex_services::audio::VolumeControl;
 use zex_services::audio::volume::{VolumeState, spawn_volume_monitor};
 use zex_services::compositor::{self, CompositorEvent};
 use zex_services::mpris::{self, MprisEvent, MprisPlayer};
+use zex_services::recorder::{IndicatorMode, RecorderCmd, RecorderEvent, spawn_recorder};
 use zex_services::tray::{SystemTray, TrayEvent, TrayItem};
 use zex_services::upower::{Battery, Upower};
 
@@ -45,6 +46,7 @@ pub enum BarsMsg {
     Tray(TrayEvent),
     Batteries(Vec<Battery>),
     Volume(VolumeState),
+    Recorder(RecorderEvent),
 }
 
 /// Commands routed to the status runtime thread (tray + power events)
@@ -93,6 +95,8 @@ pub struct Bars {
     volume: VolumeState,
     /// Sends clamp/scroll commands to the volume thread
     volume_control: VolumeControl,
+    /// Sends start/stop/pause commands to the recorder thread
+    recorder_tx: flume::Sender<RecorderCmd>,
 }
 
 impl Bars {
@@ -247,6 +251,8 @@ impl SimpleComponent for Bars {
         let settings = Rc::new(Mutex::new(store.get().clone()));
 
         let (status_cmds, status_cmd_rx) = flume::unbounded();
+        let (recorder_tx, recorder_rx) = flume::unbounded();
+        let (recorder_events_tx, recorder_events_rx) = flume::unbounded();
         let mut model = Self {
             settings: Rc::clone(&settings),
             widgets_by_monitor: HashMap::new(),
@@ -265,7 +271,35 @@ impl SimpleComponent for Bars {
             batteries: Vec::new(),
             volume: VolumeState::default(),
             volume_control: VolumeControl::default(),
+            recorder_tx,
         };
+
+        // Recorder service: manages gpu-screen-recorder via xdg-desktop-portal
+        let _recorder_out = sender.clone();
+        std::thread::spawn(move || {
+            let runtime = match tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+            {
+                Ok(runtime) => runtime,
+                Err(err) => {
+                    tracing::warn!("recorder runtime unavailable: {err}");
+                    return;
+                }
+            };
+            runtime.block_on(async {
+                let recorder = zex_services::recorder::Recorder::new(recorder_events_tx)
+                    .expect("recorder init");
+                recorder.run(recorder_rx).await;
+            });
+        });
+        // Bridge recorder events to GTK loop
+        let recorder_events_out = sender.clone();
+        std::thread::spawn(move || {
+            while let Ok(event) = recorder_events_rx.recv() {
+                recorder_events_out.input(BarsMsg::Recorder(event));
+            }
+        });
 
         // Compositor backend: events stream into the GTK loop, no polling
         if let Some(compositor) = compositor::detect_compositor() {
@@ -523,6 +557,13 @@ impl SimpleComponent for Bars {
             BarsMsg::Volume(state) => {
                 self.volume = state;
                 self.push_volume();
+            }
+            BarsMsg::Recorder(event) => {
+                for registry in self.widgets_by_monitor.values() {
+                    if let Some(sender) = registry.recording_indicator_sender() {
+                        let _ = sender.send(event.clone());
+                    }
+                }
             }
         }
     }

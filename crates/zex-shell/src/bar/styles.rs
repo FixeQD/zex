@@ -163,7 +163,8 @@ pub fn compute(bar: &dyn BarLike) -> BarStyle {
     let side = Side::parse(bar.side());
     let rank = compact_rank(bar.density());
 
-    let mut css_classes = Vec::with_capacity(8);
+    let mut css_classes = Vec::with_capacity(9);
+    css_classes.push("bar");
     if bar.floating() {
         css_classes.push("floating");
     } else {

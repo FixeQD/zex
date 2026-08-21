@@ -71,7 +71,7 @@ impl ThemeManager {
                 Ok(Ok(palette)) => palette,
                 Ok(Err(err)) | Err(err) => {
                     tracing::warn!("palette generation failed, using fallback: {err:#}");
-                    Palette::default()
+                    Palette::default_for(dark)
                 }
             },
             other => {
@@ -80,7 +80,7 @@ impl ThemeManager {
                 } else {
                     tracing::warn!("wallpaper does not exist, using fallback palette");
                 }
-                Palette::default()
+                Palette::default_for(dark)
             }
         };
 

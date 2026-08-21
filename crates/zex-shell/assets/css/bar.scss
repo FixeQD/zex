@@ -335,6 +335,40 @@ $gap: 2px !default;
     transition: 200ms;
 }
 
+.recording-indicator {
+    padding: 0 8px;
+    border-radius: 9999px;
+    transition: background-color 200ms ease, color 200ms ease;
+    min-width: 80px;
+
+    &.idle {
+        background-color: transparent;
+        color: $on-background;
+    }
+
+    &.recording {
+        background-color: $error;
+        color: $on-error;
+        animation: pulse 1s ease-in-out infinite;
+    }
+
+    &.paused {
+        background-color: $tertiary;
+        color: $on-tertiary;
+    }
+
+    .timer {
+        font-family: @font-mono;
+        font-size: 0.85rem;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
 .launcher-button {
     font-size: 12pt;
     &:hover { background: $primary-container; color: $on-primary-container; }

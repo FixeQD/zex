@@ -9,5 +9,6 @@ pub mod lockscreen;
 pub mod mpris;
 pub mod networkmanager;
 pub mod notifications;
+pub mod recorder;
 pub mod tray;
 pub mod upower;

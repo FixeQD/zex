@@ -205,7 +205,56 @@ impl Default for Palette {
     }
 }
 
+pub fn default_dark() -> Palette {
+    Palette {
+        primary: rgba!("#d3e3fd"),
+        on_primary: rgba!("#123258"),
+        primary_container: rgba!("#354a63"),
+        on_primary_container: rgba!("#d3e3fd"),
+        secondary: rgba!("#cdd5e9"),
+        on_secondary: rgba!("#2a2f3f"),
+        secondary_container: rgba!("#262c3a"),
+        on_secondary_container: rgba!("#d9e2f8"),
+        tertiary: rgba!("#e0bcc6"),
+        on_tertiary: rgba!("#45263a"),
+        tertiary_container: rgba!("#5d3a4f"),
+        on_tertiary_container: rgba!("#ffd7f0"),
+        error: rgba!("#ffb4ab"),
+        on_error: rgba!("#690005"),
+        error_container: rgba!("#93000a"),
+        on_error_container: rgba!("#ffb4ab"),
+        background: rgba!("#131316"),
+        on_background: rgba!("#e3e2e6"),
+        surface: rgba!("#131316"),
+        on_surface: rgba!("#e3e2e6"),
+        surface_variant: rgba!("#47474e"),
+        on_surface_variant: rgba!("#c7c6ce"),
+        outline: rgba!("#87878c"),
+        outline_variant: rgba!("#47474e"),
+        shadow: rgba!("#000000"),
+        scrim: rgba!("#000000"),
+        inverse_surface: rgba!("#e3e2e6"),
+        inverse_on_surface: rgba!("#313033"),
+        inverse_primary: rgba!("#5b5cf0"),
+        surface_dim: rgba!("#131316"),
+        surface_bright: rgba!("#3a3a41"),
+        surface_container_lowest: rgba!("#0e0e11"),
+        surface_container_low: rgba!("#1b1b1f"),
+        surface_container: rgba!("#1f1f24"),
+        surface_container_high: rgba!("#26262c"),
+        surface_container_highest: rgba!("#2c2c33"),
+    }
+}
+
 impl Palette {
+    pub fn default_for(dark: bool) -> Palette {
+        if dark {
+            default_dark()
+        } else {
+            Palette::default()
+        }
+    }
+
     /// Whether a palette is a dark scheme, i.e. dark surfaces with light text
     pub fn is_dark(&self) -> bool {
         self.surface.luminance() < self.on_surface.luminance()

@@ -71,6 +71,31 @@ impl Dial {
     pub async fn reload(&self) -> anyhow::Result<()> {
         Ok(self.inner.clone().reload(context::current()).await??)
     }
+
+    // Window management
+    pub async fn open_window(&self, name: &str) -> anyhow::Result<String> {
+        Ok(self
+            .inner
+            .clone()
+            .open_window(context::current(), name.to_string())
+            .await??)
+    }
+
+    pub async fn toggle_window(&self, name: &str) -> anyhow::Result<String> {
+        Ok(self
+            .inner
+            .clone()
+            .toggle_window(context::current(), name.to_string())
+            .await??)
+    }
+
+    pub async fn close_window(&self, name: &str) -> anyhow::Result<String> {
+        Ok(self
+            .inner
+            .clone()
+            .close_window(context::current(), name.to_string())
+            .await??)
+    }
 }
 
 /// Blocking flavour for CLIs and keybinding helpers
@@ -107,5 +132,18 @@ impl Blocking {
 
     pub fn reload(&self) -> anyhow::Result<()> {
         block_on(self.0.reload())
+    }
+
+    // Window management (blocking)
+    pub fn open_window(&self, name: &str) -> anyhow::Result<String> {
+        block_on(self.0.open_window(name))
+    }
+
+    pub fn toggle_window(&self, name: &str) -> anyhow::Result<String> {
+        block_on(self.0.toggle_window(name))
+    }
+
+    pub fn close_window(&self, name: &str) -> anyhow::Result<String> {
+        block_on(self.0.close_window(name))
     }
 }

@@ -18,6 +18,9 @@ fn pump_queue(receiver: flume::Receiver<Demand>) -> mpsc::Receiver<()> {
                 }]),
                 Request::Run(name) if name == "boom" => Answer::Done,
                 Request::Quit | Request::Reload | Request::Run(_) => Answer::Done,
+                Request::OpenWindow(_) | Request::ToggleWindow(_) | Request::CloseWindow(_) => {
+                    Answer::WindowResult("ok".into())
+                }
             };
             if demand.reply.send(answer).is_err() {
                 break;

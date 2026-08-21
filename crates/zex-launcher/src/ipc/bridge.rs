@@ -20,12 +20,16 @@ pub enum Request {
     Run(String),
     Quit,
     Reload,
+    OpenWindow(String),
+    ToggleWindow(String),
+    CloseWindow(String),
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Answer {
     Done,
     Hits(Vec<Hit>),
+    WindowResult(String),
 }
 
 pub type Reply = tokio::sync::oneshot::Sender<Answer>;
@@ -58,6 +62,7 @@ impl ZexControl for Control {
         match relay(&self.queue, Request::Query { text, limit }).await? {
             Answer::Hits(hits) => Ok(hits),
             Answer::Done => Err(Fault::Rejected("query produced no answer".into())),
+            Answer::WindowResult(_) => Err(Fault::Rejected("unexpected window result".into())),
         }
     }
 
@@ -71,6 +76,27 @@ impl ZexControl for Control {
 
     async fn reload(self, _: Context) -> Result<(), Fault> {
         relay(&self.queue, Request::Reload).await.map(|_| ())
+    }
+
+    async fn open_window(self, _: Context, name: String) -> Result<String, Fault> {
+        match relay(&self.queue, Request::OpenWindow(name)).await? {
+            Answer::WindowResult(msg) => Ok(msg),
+            _ => Err(Fault::Rejected("expected window result".into())),
+        }
+    }
+
+    async fn toggle_window(self, _: Context, name: String) -> Result<String, Fault> {
+        match relay(&self.queue, Request::ToggleWindow(name)).await? {
+            Answer::WindowResult(msg) => Ok(msg),
+            _ => Err(Fault::Rejected("expected window result".into())),
+        }
+    }
+
+    async fn close_window(self, _: Context, name: String) -> Result<String, Fault> {
+        match relay(&self.queue, Request::CloseWindow(name)).await? {
+            Answer::WindowResult(msg) => Ok(msg),
+            _ => Err(Fault::Rejected("expected window result".into())),
+        }
     }
 }
 

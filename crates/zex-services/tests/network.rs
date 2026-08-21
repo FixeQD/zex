@@ -1,7 +1,7 @@
 //! Pure tests for NetworkManager fallback data handling.
 
 use zbus::zvariant::OwnedObjectPath;
-use zex_services::network::{AccessPoint, is_secure, sort_access_points};
+use zex_services::networkmanager::{AccessPoint, is_secure, sort_access_points};
 
 fn ap(ssid: &str, strength: u8, id: u8) -> AccessPoint {
     AccessPoint {

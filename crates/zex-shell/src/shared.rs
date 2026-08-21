@@ -42,10 +42,10 @@ fn palette_for_settings(settings: &zex_core::Settings) -> (Palette, bool) {
             Ok(Ok(pal)) => pal,
             Ok(Err(e)) | Err(e) => {
                 tracing::warn!("palette generation failed, using fallback: {e:#}");
-                Palette::default()
+                Palette::default_for(dark)
             }
         },
-        None => Palette::default(),
+        None => Palette::default_for(dark),
     };
     (palette, dark)
 }
@@ -56,7 +56,7 @@ pub fn theme_scss_from_settings(settings: &zex_core::Settings) -> String {
         Ok(s) => s,
         Err(e) => {
             tracing::warn!("theme_scss failed: {e:#}");
-            css::theme_scss(&Palette::default(), true).unwrap_or_default()
+            css::theme_scss(&Palette::default_for(dark), dark).unwrap_or_default()
         }
     }
 }

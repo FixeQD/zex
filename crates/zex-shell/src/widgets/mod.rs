@@ -24,6 +24,7 @@ use crate::bar::layout::Module;
 use crate::bar::widgets::MprisControl;
 use crate::bar::widgets::battery::BatteryWidget;
 use crate::bar::widgets::media;
+use crate::bar::widgets::recording_indicator::RecordingIndicator;
 use crate::bar::widgets::systeminfotray::{SystemInfoTray, TrayControl};
 use crate::bar::widgets::tasks::Tasks;
 use crate::bar::widgets::window_info::WindowInfoWidget;
@@ -53,6 +54,7 @@ pub struct Widgets {
     window_info: Option<Rc<WindowInfoWidget>>,
     media: Option<Rc<media::Media>>,
     tasks: Option<Rc<Tasks>>,
+    recording_indicator: Option<Rc<RecordingIndicator>>,
     system_tray: Option<Rc<SystemInfoTray>>,
     settings: SharedSettings,
     /// Compositor handle for direct workspace switches; absent when no backend detected
@@ -120,6 +122,10 @@ impl Widgets {
         map.insert(Module::Tasks, tasks.widget().upcast());
         let tasks = Some(tasks);
 
+        let recording_indicator = Rc::new(RecordingIndicator::new());
+        map.insert(Module::RecordingIndicator, recording_indicator.widget().upcast());
+        let recording_indicator = Some(recording_indicator);
+
         let battery = BatteryWidget::new();
         let on_quickcenter = deps.on_quickcenter.clone();
         let system_tray = SystemInfoTray::new(
@@ -139,6 +145,7 @@ impl Widgets {
             window_info,
             media,
             tasks,
+            recording_indicator,
             system_tray,
             settings,
             switcher,
@@ -286,5 +293,10 @@ impl Widgets {
             Some("Niri") => 1,
             _ => 0,
         }
+    }
+
+    /// Get the recording indicator's event sender for forwarding recorder events
+    pub fn recording_indicator_sender(&self) -> Option<flume::Sender<zex_services::recorder::RecorderEvent>> {
+        self.recording_indicator.as_ref().map(|ri| ri.event_sender())
     }
 }

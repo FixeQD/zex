@@ -219,6 +219,7 @@ impl Tasks {
         }
 
         let button = gtk4::Button::new();
+        button.set_valign(gtk4::Align::Center);
         button.set_child(Some(&overlay));
         button.set_css_classes(&["app-button"]);
         if is_open {

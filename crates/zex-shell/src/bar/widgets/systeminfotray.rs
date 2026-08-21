@@ -239,6 +239,7 @@ impl SystemInfoTray {
         content.append(&widget.battery.widget());
 
         let button = gtk4::Button::new();
+        button.set_valign(gtk4::Align::Center);
         button.set_css_classes(&["system-info-tray-container"]);
         button.set_child(Some(&content));
         button.connect_clicked(move |_| on_quickcenter());
@@ -349,6 +350,7 @@ impl SystemInfoTray {
 /// One SNI item button: themed icon or pixmap texture; click activates, PPM opens the menu
 fn make_item_button(item: TrayItem, tray: TrayControl) -> gtk4::Button {
     let button = gtk4::Button::new();
+    button.set_valign(gtk4::Align::Center);
     button.set_css_classes(&["tray-item"]);
 
     let image = gtk4::Image::new();

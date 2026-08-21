@@ -15,6 +15,7 @@ fn default_bar_style() {
     assert_eq!(
         style.css_classes,
         [
+            "bar",
             "hug",
             "extrapadding",
             "full",
@@ -51,7 +52,7 @@ fn vertical_side_anchors_three_edges() {
     bar.vertical = true;
     let style = style_of(&bar);
     assert_eq!(style.anchors, [true, false, true, true]);
-    assert_eq!(style.css_classes[3], "vertical");
+    assert!(style.css_classes.contains(&"vertical"));
     assert!(style.css_classes.contains(&"right"));
 }
 
