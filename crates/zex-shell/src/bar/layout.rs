@@ -2,7 +2,6 @@
 
 use zex_core::settings::{BarId, Locations, Modules, Visibility};
 
-/// Every module the bar can host, in the canonical reference order
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Module {
     Launcher,
@@ -62,7 +61,6 @@ impl Area {
         }
     }
 
-    /// CSS class of the segment box
     pub const fn as_css_class(self) -> &'static str {
         match self {
             Area::Left => "left-widgets",
@@ -72,7 +70,6 @@ impl Area {
     }
 }
 
-/// Per-module accessors for the three `interface.modules` sub-groups
 pub trait PerModule<T> {
     fn value(&self, module: Module) -> T;
 }
@@ -122,7 +119,6 @@ impl PerModule<u8> for BarId {
     }
 }
 
-/// Where a single module lives in the shell: segment + bar instance + visibility
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Placement {
     pub module: Module,
@@ -131,14 +127,12 @@ pub struct Placement {
     pub visible: bool,
 }
 
-/// The full bar arrangement derived from the settings snapshot
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Layout {
     placements: Vec<Placement>,
 }
 
 impl Layout {
-    /// Derive the layout from `interface.modules`
     pub fn new(modules: &Modules) -> Self {
         let mut placements = Vec::with_capacity(Module::ALL.len());
         for module in Module::ALL {
@@ -168,12 +162,10 @@ impl Layout {
         Self { placements }
     }
 
-    /// All placements, in canonical module order
     pub fn placements(&self) -> &[Placement] {
         &self.placements
     }
 
-    /// Placements hosted by one bar instance, in module order
     pub fn for_bar(&self, bar_id: u8) -> impl Iterator<Item = Placement> + '_ {
         self.placements
             .iter()
@@ -181,12 +173,10 @@ impl Layout {
             .filter(move |p| p.bar_id == bar_id)
     }
 
-    /// Whether a bar instance hosts at least one module
     pub fn bar_in_use(&self, bar_id: u8) -> bool {
         self.placements.iter().any(|p| p.bar_id == bar_id)
     }
 
-    /// True when no module is placed anywhere
     pub fn is_empty(&self) -> bool {
         self.placements.is_empty()
     }

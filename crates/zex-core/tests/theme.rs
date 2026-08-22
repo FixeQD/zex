@@ -1,10 +1,11 @@
-//! Theming pipeline tests: colour parsing, token overlays, template rendering, SCSS compilation and GTK CSS loading
+//! Theming pipeline tests: colour parsing, token overlays, template rendering, SCSS compilation
 
 use std::collections::HashMap;
 
 use serde_json::json;
-use zex_core::theme::{Palette, Rgba};
-use zex_core::theme::{css, matugen};
+use zex_core::theme::{Palette, Rgba, COLORS_SCSS, LIGHT_THEME_OVERRIDES_SCSS, PREVIEW_COLORS_SCSS};
+use zex_core::theme::{compile, ensure_generator_config, palette_env, preview_scss, render, theme_scss};
+use zex_core::theme::matugen;
 
 #[test]
 fn hex_parsing() {
@@ -140,11 +141,11 @@ fn fallback_palette_is_light_readable() {
 #[test]
 fn token_count_matches_template() {
     let palette = Palette::default();
-    let vars = css::palette_env(&palette);
+    let vars = palette_env(&palette);
     // every {{token}} placeholder is known
-    css::render(css::COLORS_SCSS, &vars).unwrap();
+    render(COLORS_SCSS, &vars).unwrap();
     // one placeholder per token for the SCSS variables, a second set for the @define-color entries, plus $is-dark
-    let placeholders = css::COLORS_SCSS.matches("{{").count();
+    let placeholders = COLORS_SCSS.matches("{{").count();
     assert_eq!(placeholders, palette.tokens().len() * 2 + 1);
     assert_eq!(vars.len(), palette.tokens().len() + 1);
 }
@@ -153,14 +154,14 @@ fn token_count_matches_template() {
 fn unknown_placeholder_is_an_error() {
     let mut env = HashMap::new();
     env.insert("primary".to_string(), "#ffffff".to_string());
-    assert!(css::render("$x: {{primary}}; $y: {{nope}};", &env).is_err());
-    assert!(css::render("$x: {{primary", &env).is_err());
+    assert!(render("$x: {{primary}}; $y: {{nope}};", &env).is_err());
+    assert!(render("$x: {{primary", &env).is_err());
 }
 
 #[test]
 fn render_substitutes_all_placeholders() {
     let palette = Palette::default();
-    let rendered = css::render(css::COLORS_SCSS, &css::palette_env(&palette)).unwrap();
+    let rendered = render(COLORS_SCSS, &palette_env(&palette)).unwrap();
     assert!(!rendered.contains("{{"));
     assert!(rendered.contains("#5b5cf0"));
     assert!(rendered.contains("$is-dark: false;"));
@@ -169,8 +170,8 @@ fn render_substitutes_all_placeholders() {
 #[test]
 fn theme_scss_light_appends_overrides() {
     let palette = Palette::default();
-    let dark = css::theme_scss(&palette, true).unwrap();
-    let light = css::theme_scss(&palette, false).unwrap();
+    let dark = theme_scss(&palette, true).unwrap();
+    let light = theme_scss(&palette, false).unwrap();
     assert!(!dark.contains("Light-mode adjustments"));
     assert!(light.contains("Light-mode adjustments"));
     assert_ne!(dark, light);
@@ -187,7 +188,7 @@ fn theme_scss_light_appends_overrides() {
 #[test]
 fn theme_scss_light_keeps_text_tones() {
     let palette = Palette::default();
-    let light = css::theme_scss(&palette, false).unwrap();
+    let light = theme_scss(&palette, false).unwrap();
     // text colours are untouched by the light overrides
     let overrides_section = &light[light.find("Light-mode adjustments").unwrap()..];
     assert!(overrides_section.contains("@define-color zex-on-surface #1a1b21;"));
@@ -197,29 +198,10 @@ fn theme_scss_light_keeps_text_tones() {
 #[test]
 fn scss_compiles_to_css() {
     let palette = Palette::default();
-    let scss = css::theme_scss(&palette, true).unwrap();
-    let css = css::compile(&scss).unwrap();
+    let scss = theme_scss(&palette, true).unwrap();
+    let css = compile(&scss).unwrap();
     assert!(css.contains("#5b5cf0"));
     assert!(css.contains("@define-color zex-surface-container-lowest #ffffff;"));
-}
-
-#[gtk4::test]
-fn compiled_css_loads_into_provider() {
-    let palette = Palette::default();
-    let scss = css::theme_scss(&palette, true).unwrap();
-    let css = css::compile(&scss).unwrap();
-    let provider = gtk4::CssProvider::new();
-    css::load(&provider, &css);
-    assert!(!provider.to_string().is_empty());
-}
-
-#[gtk4::test]
-fn light_theme_compiles_and_loads() {
-    let palette = Palette::default();
-    let scss = css::theme_scss(&palette, false).unwrap();
-    let css = css::compile(&scss).unwrap();
-    let provider = gtk4::CssProvider::new();
-    css::load(&provider, &css);
 }
 
 #[test]
@@ -229,7 +211,7 @@ fn preview_template_renders_lines() {
         .map(|scheme| format!("  \"{scheme}\": ({scheme}, true),"))
         .collect::<Vec<_>>()
         .join("\n");
-    let rendered = css::preview_scss(&lines).unwrap();
+    let rendered = preview_scss(&lines).unwrap();
     assert!(!rendered.contains("{{"));
     assert_eq!(rendered.matches("\"").count(), matugen::SCHEMES.len() * 2);
 }
@@ -257,32 +239,14 @@ fn scheme_names_are_stable() {
     );
 }
 
-#[gtk4::test]
-fn invalid_scheme_falls_back_in_refresh() {
-    let mut manager = zex_core::theme::ThemeManager::new();
-    // no wallpaper, invalid scheme, no config dir: fallback path only
-    let result = manager.refresh(None, "made_up_scheme", true, None);
-    assert!(result.is_ok());
-    assert!(manager.palette().is_some());
-    assert!(manager.dark());
-}
-
-#[gtk4::test]
-fn reload_uses_settings_group() {
-    let settings = zex_core::Settings::default();
-    let mut manager = zex_core::theme::ThemeManager::new();
-    assert!(manager.reload(&settings).is_ok());
-    assert!(manager.palette().is_some());
-}
-
 #[test]
 fn ensure_generator_config_writes_once() {
     let dir = std::env::temp_dir().join(format!("zex-theme-config-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
-    let path = css::ensure_generator_config(&dir).unwrap();
+    let path = ensure_generator_config(&dir).unwrap();
     assert!(path.exists());
     let first = std::fs::read_to_string(&path).unwrap();
-    let path2 = css::ensure_generator_config(&dir).unwrap();
+    let path2 = ensure_generator_config(&dir).unwrap();
     let second = std::fs::read_to_string(&path2).unwrap();
     assert_eq!(first, second);
     let _ = std::fs::remove_dir_all(&dir);

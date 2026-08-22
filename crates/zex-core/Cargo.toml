@@ -13,6 +13,10 @@ tracing.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 dirs.workspace = true
-grass.workspace = true
 tokio.workspace = true
-gtk4.workspace = true
+chrono.workspace = true
+image.workspace = true
+grass.workspace = true
+
+iced.workspace = true
+iced_core.workspace = true

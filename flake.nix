@@ -35,15 +35,13 @@
     nativeBuildInputs = with pkgs; [pkg-config wrapGAppsHook3 libclang];
 
     buildInputs = with pkgs; [
-      gtk4
-      gtk4-layer-shell
       wayland
       libxkbcommon
       fontconfig
       freetype
-      gdk-pixbuf
       pipewire
       linux-pam
+      vulkan-loader
     ];
 
 
@@ -143,6 +141,8 @@
 
       env.LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath buildInputs;
       env.LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
+      # Required for iced_wgpu
+      env.VK_ICD_FILENAMES = "${pkgs.vulkan-loader}/share/vulkan/icd.d/lvp_icd.x86_64.json";
     };
   }) // {
     homeManagerModules.default = { config, lib, pkgs, ... }:

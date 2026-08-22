@@ -6,14 +6,20 @@ use anyhow::{Context, Result};
 
 use crate::settings::Settings;
 
-pub mod css;
+pub mod iced_theme;
 pub mod matugen;
 pub mod palette;
 
+pub use iced_theme::{
+    COLORS_SCSS, LIGHT_THEME_OVERRIDES_SCSS, PREVIEW_COLORS_SCSS, compile, ensure_generator_config,
+    palette_env, palette_to_iced_theme, preview_scss, render, theme_from_settings,
+    theme_from_wallpaper, theme_scss,
+};
 pub use palette::{Palette, Rgba};
 
+/// Theme manager using iced Themes
 pub struct ThemeManager {
-    provider: gtk4::CssProvider,
+    theme: iced_core::Theme,
     palette: Option<Palette>,
     dark: bool,
 }
@@ -26,15 +32,18 @@ impl Default for ThemeManager {
 
 impl ThemeManager {
     pub fn new() -> Self {
+        let dark = true;
+        let palette = Palette::default_for(dark);
+        let theme = iced_theme::palette_to_iced_theme(&palette, dark);
         Self {
-            provider: gtk4::CssProvider::new(),
-            palette: None,
-            dark: true,
+            theme,
+            palette: Some(palette),
+            dark,
         }
     }
 
-    pub fn provider(&self) -> &gtk4::CssProvider {
-        &self.provider
+    pub fn theme(&self) -> &iced_core::Theme {
+        &self.theme
     }
 
     pub fn palette(&self) -> Option<&Palette> {
@@ -60,7 +69,7 @@ impl ThemeManager {
             .unwrap_or("tonal_spot");
 
         if let Some(config_dir) = config_dir {
-            match css::ensure_generator_config(config_dir) {
+            match iced_theme::ensure_generator_config(config_dir) {
                 Ok(_) => {}
                 Err(err) => tracing::warn!("generator config not written: {err:#}"),
             }
@@ -84,8 +93,8 @@ impl ThemeManager {
             }
         };
 
-        css::apply_theme(&self.provider, &palette, dark)?;
-        css::apply_system_color_scheme(dark);
+        self.theme = iced_theme::palette_to_iced_theme(&palette, dark);
+        iced_theme::apply_system_color_scheme(dark);
         self.palette = Some(palette);
         self.dark = dark;
         Ok(())
@@ -115,6 +124,21 @@ impl ThemeManager {
                 tracing::warn!("preview generation failed: {err:#}");
                 Vec::new()
             }
+        }
+    }
+}
+
+/// Generate preview swatches for the settings panel
+pub fn previews(wallpaper: Option<&Path>) -> Vec<matugen::Preview> {
+    let Some(path) = wallpaper.filter(|p| p.is_file()) else {
+        tracing::warn!("no wallpaper for previews");
+        return Vec::new();
+    };
+    match block_on(matugen::previews(path)) {
+        Ok(Ok(previews)) => previews,
+        Ok(Err(err)) | Err(err) => {
+            tracing::warn!("preview generation failed: {err:#}");
+            Vec::new()
         }
     }
 }
